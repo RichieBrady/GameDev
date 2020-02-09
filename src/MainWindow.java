@@ -75,11 +75,22 @@ public class MainWindow {
             }
         });
         startMenuButton.setBounds(400, 500, 200, 40);
-
+      //JButton optionsMenuButton = new JButton("Options");  // start button
+      //startMenuButton.addActionListener(new ActionListener() {
+      //    @Override
+      //    public void actionPerformed(ActionEvent e) {
+      //        startMenuButton.setVisible(false);
+      //        BackgroundImageForStartMenu.setVisible(false);
+      //        canvas.setVisible(true);
+      //        canvas.addKeyListener(Controller);    //adding the controller to the Canvas
+      //        canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
+      //        startGame = true;
+      //    }
+      //});
+      //startMenuButton.setBounds(440, 500, 200, 40);
         //loading background image
-        File BackroundToLoad = new File("res/StartUpScreen2.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File BackroundToLoad = new File("res/startscreen.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
-
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
             BackgroundImageForStartMenu.setBounds(0, 0, 1024, 768);

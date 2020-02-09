@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import util.GameObject;
+import util.TileMaps;
 
 
 /*
@@ -45,6 +46,7 @@ public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
 
     Model gameworld = new Model();
+    TileMaps tileMaps = new TileMaps();
 
     public Viewer(Model World) {
         this.gameworld = World;
@@ -95,17 +97,17 @@ public class Viewer extends JPanel {
 
         //Draw Bullets
         // change back
-        gameworld.getBullets().forEach((temp) ->
-        {
-            drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
-        });
-
-        //Draw Enemies
-        gameworld.getEnemies().forEach((temp) ->
-        {
-            drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
-
-        });
+//        gameworld.getBullets().forEach((temp) ->
+//        {
+//            drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+//        });
+//
+//        //Draw Enemies
+//        gameworld.getEnemies().forEach((temp) ->
+//        {
+//            drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+//
+//        });
     }
 
     private void drawEnemies(int x, int y, int width, int height, String texture, Graphics g) {
@@ -133,6 +135,30 @@ public class Viewer extends JPanel {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+    }
+
+    private void drawGround(Graphics g) {
+        int row = 0;
+        int column = 0;
+        String filepath = "res/calc/Dungeon/";
+        for(int i = 0; i < 768; i += 16){
+            for (int j = 0; j < 1024; j += 16){
+                String filename = "";
+                filename = tileMaps.getGround()[row][column++] + ".png";
+                File TextureToLoad = new File(filepath + filename);
+                try {
+                    Image myImage = ImageIO.read(TextureToLoad);
+                    g.drawImage(myImage, j, i, j + 16, i + 16, 0, 0, 16, 16, null);
+
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
+            column = 0;
+            row++;
         }
     }
 
