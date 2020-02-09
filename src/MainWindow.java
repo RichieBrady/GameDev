@@ -53,7 +53,7 @@ public class MainWindow {
     private JLabel BackgroundImageForStartMenu;
 
     public MainWindow() {
-        frame.setSize(1024, 768);  // you can customise this later and adapt it to change on size.
+        frame.setSize(1024, 800);  // you can customise this later and adapt it to change on size.
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //If exit // you can modify with your way of quitting , just is a template.
         frame.setLayout(null);
         frame.add(canvas);
@@ -93,7 +93,7 @@ public class MainWindow {
         try {
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 768);
+            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 800);
             frame.add(BackgroundImageForStartMenu);
         } catch (IOException e) {
             e.printStackTrace();

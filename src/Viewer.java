@@ -90,7 +90,7 @@ public class Viewer extends JPanel {
         String texture = gameworld.getPlayer().getTexture();
 
         //Draw background
-        drawBackground(g);
+        drawGround(g);
 
         //Draw player
         drawPlayer(x, y, width, height, texture, g);
@@ -141,22 +141,21 @@ public class Viewer extends JPanel {
     private void drawGround(Graphics g) {
         int row = 0;
         int column = 0;
-        String filepath = "res/calc/Dungeon/";
-        for(int i = 0; i < 768; i += 16){
-            for (int j = 0; j < 1024; j += 16){
+        String filepath = "res/Dungeon/";
+        for(int i = 0; i < 768; i += 64){
+            for (int j = 0; j < 1024; j += 64){
                 String filename = "";
-                filename = tileMaps.getGround()[row][column++] + ".png";
+                filename = tileMaps.getDungeonMap()[row][column++] + ".png";
                 File TextureToLoad = new File(filepath + filename);
                 try {
                     Image myImage = ImageIO.read(TextureToLoad);
-                    g.drawImage(myImage, j, i, j + 16, i + 16, 0, 0, 16, 16, null);
+                    g.drawImage(myImage, j, i, j + 64, i + 64, 0, 0, 16, 16, null);
 
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
-
             column = 0;
             row++;
         }
@@ -174,8 +173,7 @@ public class Viewer extends JPanel {
             e.printStackTrace();
         }
     }
-
-
+    
     private void drawPlayer(int x, int y, int width, int height, String texture, Graphics g) {
         File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
