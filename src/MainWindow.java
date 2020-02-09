@@ -1,6 +1,4 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
@@ -13,7 +11,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import util.UnitTests;
 
@@ -44,7 +41,7 @@ SOFTWARE.
 
 
 public class MainWindow {
-    private static JFrame frame = new JFrame("Game");   // Change to the name of your game
+    private static JFrame frame = new JFrame("Game"); // Change to the name of your game
     private static Model gameworld = new Model();
     private static Viewer canvas = new Viewer(gameworld);
     private KeyListener Controller = new Controller();
@@ -53,11 +50,11 @@ public class MainWindow {
     private JLabel BackgroundImageForStartMenu;
 
     public MainWindow() {
-        frame.setSize(1024, 768);  // you can customise this later and adapt it to change on size.
+        frame.setSize(1024, 800);  // you can customise this later and adapt it to change on size.
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //If exit // you can modify with your way of quitting , just is a template.
         frame.setLayout(null);
         frame.add(canvas);
-        canvas.setBounds(0, 0, 1024, 768);
+        canvas.setBounds(0, 0, 1024, 800);
         canvas.setBackground(new Color(255, 255, 255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
         canvas.setVisible(false);   // this will become visible after you press the key.
 
@@ -82,7 +79,7 @@ public class MainWindow {
 
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 768);
+            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 800);
             frame.add(BackgroundImageForStartMenu);
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,7 +118,6 @@ public class MainWindow {
     //Basic Model-View-Controller pattern
     private static void gameloop() {
         // GAMELOOP
-
         // controller input  will happen on its own thread
         // So no need to call it explicitly
 
