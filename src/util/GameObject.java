@@ -28,10 +28,11 @@ SOFTWARE.
  */
 public class GameObject {
 
-    private Point3f centre = new Point3f(0, 0, 0);            // Centre of object, using 3D as objects may be scaled
+    private Point3f centre = new Point3f(0, 0, 0); // Centre of object, using 3D as objects may be scaled
     private int width = 10;
     private int height = 10;
     private boolean hasTextured = false;
+    private boolean collided = false;
     private String textureLocation;
     private String blanktexture = "res/blankSprite.png";
 
@@ -53,9 +54,7 @@ public class GameObject {
 
     public void setCentre(Point3f centre) {
         this.centre = centre;
-
-        //make sure to put boundaries on the gameObject
-
+        // make sure to put boundaries on the gameObject
     }
 
     public int getWidth() {
@@ -74,6 +73,13 @@ public class GameObject {
         return blanktexture;
     }
 
+    public boolean isCollided() {
+        return collided;
+    }
+
+    public void setCollided(boolean collided) {
+        this.collided = collided;
+    }
 }
 
 /*

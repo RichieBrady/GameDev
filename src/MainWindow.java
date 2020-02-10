@@ -39,7 +39,6 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 
-
 public class MainWindow {
     private static JFrame frame = new JFrame("Game"); // Change to the name of your game
     private static Model gameworld = new Model();
@@ -58,7 +57,6 @@ public class MainWindow {
         canvas.setBackground(new Color(255, 255, 255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
         canvas.setVisible(false);   // this will become visible after you press the key.
 
-
         JButton startMenuButton = new JButton("Start Game");  // start button
         startMenuButton.addActionListener(new ActionListener() {
             @Override
@@ -74,17 +72,15 @@ public class MainWindow {
         startMenuButton.setBounds(400, 500, 200, 40);
 
         //loading background image
-        File BackroundToLoad = new File("res/StartUpScreen2.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File BackroundToLoad = new File("res/StartUpScreen.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
-
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 800);
+            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 768);
             frame.add(BackgroundImageForStartMenu);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         frame.add(startMenuButton);
         frame.setVisible(true);
     }
@@ -94,7 +90,6 @@ public class MainWindow {
         while (true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple
         {
             //swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it
-
             int TimeBetweenFrames = 1000 / TargetFPS;
             long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames;
 
@@ -102,17 +97,13 @@ public class MainWindow {
             while (FrameCheck > System.currentTimeMillis()) {
             }
 
-
             if (startGame) {
                 gameloop();
             }
 
             //UNIT test to see if framerate matches
             UnitTests.CheckFrameRate(System.currentTimeMillis(), FrameCheck, TargetFPS);
-
         }
-
-
     }
 
     //Basic Model-View-Controller pattern
@@ -130,10 +121,7 @@ public class MainWindow {
         // Both these calls could be setup as  a thread but we want to simplify the game logic for you.
         //score update
         frame.setTitle("Score =  " + gameworld.getScore());
-
-
     }
-
 }
 
 /*

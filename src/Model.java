@@ -41,13 +41,13 @@ public class Model {
     public Model() {
         //setup game world
         //Player
-        Player = new GameObject("res/walk.png", 50, 50, new Point3f(500, 500, 0));
+        Player = new GameObject("res/walk.png", 50, 50, new Point3f(250, 500, 0));
         //Enemies  starting with four
 
-        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
-        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 500), 0, 0)));
-        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 500), 0, 0)));
-        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 400), 0, 0)));
+//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
+//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 500), 0, 0)));
+//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 500), 0, 0)));
+//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 400), 0, 0)));
 
 
     }
@@ -57,9 +57,9 @@ public class Model {
         // Player Logic first
         playerLogic();
         // Enemy Logic next
-        enemyLogic();
+        //enemyLogic();
         // Bullets move next
-        bulletLogic();
+        //bulletLogic();
         // interactions between objects
         gameLogic();
 
@@ -73,22 +73,22 @@ public class Model {
 
         //see if they hit anything
         // using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
-        for (GameObject temp : EnemiesList) {
-            if (Math.abs(temp.getCentre().getX() - getPlayer().getCentre().getX()) < temp.getWidth()
-                    && Math.abs(temp.getCentre().getY() - getPlayer().getCentre().getY()) < temp.getHeight()) {
-                EnemiesList.remove(temp);
-                getPlayer().setCentre(new Point3f(500, 700, 0));
-                Score -= 25;
-            }
-            for (GameObject Bullet : BulletList) {
-                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
-                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
-                    EnemiesList.remove(temp);
-                    BulletList.remove(Bullet);
-                    Score++;
-                }
-            }
-        }
+//        for (GameObject temp : EnemiesList) {
+//            if (Math.abs(temp.getCentre().getX() - getPlayer().getCentre().getX()) < temp.getWidth()
+//                    && Math.abs(temp.getCentre().getY() - getPlayer().getCentre().getY()) < temp.getHeight()) {
+//                EnemiesList.remove(temp);
+//                getPlayer().setCentre(new Point3f(500, 700, 0));
+//                Score -= 25;
+//            }
+//            for (GameObject Bullet : BulletList) {
+//                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
+//                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
+//                    EnemiesList.remove(temp);
+//                    BulletList.remove(Bullet);
+//                    Score++;
+//                }
+//            }
+//        }
 
     }
 
@@ -142,19 +142,47 @@ public class Model {
         //check for movement and if you fired a bullet
 
         if (Controller.getInstance().isKeyAPressed()) {
-            Player.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
+            if (getPlayer().isCollided()){
+                Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+                getPlayer().setCollided(false);
+            }
+            else{
+                Player.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
+            }
         }
 
         if (Controller.getInstance().isKeyDPressed()) {
-            Player.getCentre().ApplyVector(new Vector3f(2, 0, 0));
+            if (getPlayer().isCollided()){
+                System.out.println("collisions: model");
+                Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+                getPlayer().setCollided(false);
+            }
+            else{
+                Player.getCentre().ApplyVector(new Vector3f(2, 0, 0));
+            }
+
         }
 
         if (Controller.getInstance().isKeyWPressed()) {
-            Player.getCentre().ApplyVector(new Vector3f(0, 2, 0));
+            if (getPlayer().isCollided()){
+                Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+                getPlayer().setCollided(false);
+            }
+            else{
+                Player.getCentre().ApplyVector(new Vector3f(0, 2, 0));
+            }
+
         }
 
         if (Controller.getInstance().isKeySPressed()) {
-            Player.getCentre().ApplyVector(new Vector3f(0, -2, 0));
+            if (getPlayer().isCollided()){
+                Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+                getPlayer().setCollided(false);
+            }
+            else{
+                Player.getCentre().ApplyVector(new Vector3f(0, -2, 0));
+            }
+
         }
 
         if (Controller.getInstance().isKeySpacePressed()) {
