@@ -40,10 +40,10 @@ SOFTWARE.
  */
 public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
-    private ArrayList<Rectangle> wallRectangles = new ArrayList<>();
     private final ArrayList<Integer> wallTileIDs = new ArrayList<>(
             Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
     private final String filepath = "res/calc/Dungeon/";
+    private boolean wallTilesCollected = false;
 
     Model gameworld = new Model();
     TileMaps tileMaps = new TileMaps();
@@ -137,8 +137,8 @@ public class Viewer extends JPanel {
         int column = colMin;
         final int renderedTileSize = 64;
 
-        for (int i = 0; i < 768; i += renderedTileSize) {
-            for (int j = 0; j < 1024; j += renderedTileSize) {
+        for (int i = 0; i <= 768; i += renderedTileSize) {
+            for (int j = 0; j <= 1024; j += renderedTileSize) {
                 String filename = "";
 
                 if (column < colMax) {
@@ -146,12 +146,12 @@ public class Viewer extends JPanel {
                 } else {
                     column = colMin;
                 }
-
-                if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
-                    Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
-                    gameworld.getWallRectangles().add(wall_rect);
+                if (!wallTilesCollected) {
+                    if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
+                        Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
+                        gameworld.getWallRectangles().add(wall_rect);
+                    }
                 }
-
                 filename = tileMaps.getDungeonMapGroundLayer()[row][column] + ".png";
                 File TextureToLoad = new File(filepath + filename);
                 try {
@@ -165,6 +165,7 @@ public class Viewer extends JPanel {
             column = colMin;
             row++;
         }
+        wallTilesCollected = true;
         /*TODO No camera, player moves freely around current chunk then moves to tile leading off screen for the next chunk to be rendered*/
     }
 
@@ -189,7 +190,7 @@ public class Viewer extends JPanel {
             //The sprite is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             int currentPositionInAnimation = ((int) ((CurrentAnimationTime % 100) / 10)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
-            g.drawImage(myImage, x, y, x + 80, y + 80, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
+            g.drawImage(myImage, x, y, x + 64, y + 64, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
             // TODO add rectangle = player.w, player.h and same for wall tiles. check on each frame if playerRect.intersects(wall.rect)
         } catch (IOException e) {
             // TODO Auto-generated catch block
