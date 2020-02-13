@@ -32,7 +32,7 @@ public class Point3f {
     private float y;
     private float z;
 
-    private int boundary = 900;
+    private int boundary = 980;
 
 
     // default constructor

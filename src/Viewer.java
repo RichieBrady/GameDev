@@ -91,6 +91,7 @@ public class Viewer extends JPanel {
         String texture = gameworld.getPlayer().getTexture();
 
         //Draw player
+        System.out.println("Player: " + x + " " + y);
         drawPlayer(x, y, width, height, texture, g);
 
         // //Draw Bullets
@@ -141,11 +142,6 @@ public class Viewer extends JPanel {
             for (int j = 0; j <= 1024; j += renderedTileSize) {
                 String filename = "";
 
-                if (column < colMax) {
-                    column++;
-                } else {
-                    column = colMin;
-                }
                 if (!wallTilesCollected) {
                     if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
                         Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
@@ -161,8 +157,13 @@ public class Viewer extends JPanel {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                if (column < colMax) {
+                    column++;
+                } else {
+                    column = colMin;
+                }
             }
-            column = colMin;
+            // column = colMin;
             row++;
         }
         wallTilesCollected = true;
