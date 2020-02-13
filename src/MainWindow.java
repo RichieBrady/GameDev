@@ -90,19 +90,19 @@ public class MainWindow {
         while (true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple
         {
             //swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it
-//            int TimeBetweenFrames = 1000 / TargetFPS;
-//            long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames;
-//
-//            //wait till next time step
-//            while (FrameCheck > System.currentTimeMillis()) {
-//            }
+            int TimeBetweenFrames = 1000 / TargetFPS;
+            long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames;
+
+            //wait till next time step
+            while (FrameCheck > System.currentTimeMillis()) {
+            }
 
             if (startGame) {
                 gameloop();
             }
 
             //UNIT test to see if framerate matches
-            // UnitTests.CheckFrameRate(System.currentTimeMillis(), FrameCheck, TargetFPS);
+             UnitTests.CheckFrameRate(System.currentTimeMillis(), FrameCheck, TargetFPS);
         }
     }
 

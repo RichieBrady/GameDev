@@ -43,7 +43,7 @@ public class Model {
             Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
     private int Score = 0;
     private  Point3f checkForPlayerCollision;
-
+    private int collision_counter = 0;
     public Model() {
         //setup game world
         //Player
@@ -155,6 +155,7 @@ public class Model {
             checkForPlayerCollision.ApplyVector(new Vector3f(-2, 0, 0));
             detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
+                System.out.println("collision =" + collision_counter++);
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
             }
             else{
@@ -166,7 +167,7 @@ public class Model {
             checkForPlayerCollision.ApplyVector(new Vector3f(2, 0, 0));
             detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
-                System.out.println("collision in controller");
+                System.out.println("collision =" + collision_counter++);
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
             }
             else{
@@ -178,7 +179,7 @@ public class Model {
             checkForPlayerCollision.ApplyVector(new Vector3f(0, 2, 0));
             detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
-                System.out.println("collision in controller");
+                System.out.println("collision =" + collision_counter++);
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
             }
             else{
@@ -191,7 +192,7 @@ public class Model {
             detectCollsion(checkForPlayerCollision);
 
             if (getPlayer().isCollided()){
-                System.out.println("collision in controller");
+                System.out.println("collision =" + collision_counter++);
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
             }
             else{
@@ -210,7 +211,7 @@ public class Model {
         Rectangle playerRect = new Rectangle((int)playerLocation.getX(), (int)playerLocation.getY(), 75, 75);
         for (Rectangle wall : wallRectangles) {
             if (playerRect.intersects(wall)) {
-                //System.out.println("collided");
+                // System.out.println("collided");
                 getPlayer().setCollided(true);
                 break;
             } else {
