@@ -1,22 +1,16 @@
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
-import java.awt.TexturePaint;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
-import util.GameObject;
+import util.Point3f;
 import util.TileMaps;
 
 
@@ -47,7 +41,7 @@ SOFTWARE.
 public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
     private ArrayList<Rectangle> wallRectangles = new ArrayList<>();
-    private ArrayList<Integer> wallTileIDs = new ArrayList<>(
+    private final ArrayList<Integer> wallTileIDs = new ArrayList<>(
             Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
     private final String filepath = "res/calc/Dungeon/";
 
@@ -75,18 +69,19 @@ public class Viewer extends JPanel {
     }
 
     public void updateview() {
-
         this.repaint();
         // TODO Auto-generated method stub
-
     }
-
 
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
         CurrentAnimationTime++; // runs animation time step
 
+        //Draw background
+        drawBackground(g);
+
+        // TODO or calculate here if player collided?
 
         //Draw player Game Object
         int x = (int) gameworld.getPlayer().getCentre().getX();
@@ -94,9 +89,6 @@ public class Viewer extends JPanel {
         int width = (int) gameworld.getPlayer().getWidth();
         int height = (int) gameworld.getPlayer().getHeight();
         String texture = gameworld.getPlayer().getTexture();
-
-        //Draw background
-        drawBackground(g);
 
         //Draw player
         drawPlayer(x, y, width, height, texture, g);
@@ -144,6 +136,7 @@ public class Viewer extends JPanel {
         int row = 0;
         int column = colMin;
         final int renderedTileSize = 64;
+
         for (int i = 0; i < 768; i += renderedTileSize) {
             for (int j = 0; j < 1024; j += renderedTileSize) {
                 String filename = "";
@@ -153,19 +146,17 @@ public class Viewer extends JPanel {
                 } else {
                     column = colMin;
                 }
-                Rectangle rectangle = new Rectangle();
 
-                 if(wallTileIDs.contains(tileMaps.getDungeonMap()[row][column])){
-                       Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
-                       wallRectangles.add(wall_rect);
-                 }
+                if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
+                    Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
+                    gameworld.getWallRectangles().add(wall_rect);
+                }
 
-                filename = tileMaps.getDungeonMap()[row][column] + ".png";
+                filename = tileMaps.getDungeonMapGroundLayer()[row][column] + ".png";
                 File TextureToLoad = new File(filepath + filename);
                 try {
                     Image myImage = ImageIO.read(TextureToLoad);
                     g.drawImage(myImage, j, i, j + renderedTileSize, i + renderedTileSize, 0, 0, 16, 16, null);
-
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -175,7 +166,6 @@ public class Viewer extends JPanel {
             row++;
         }
         /*TODO No camera, player moves freely around current chunk then moves to tile leading off screen for the next chunk to be rendered*/
-
     }
 
     private void drawBullet(int x, int y, int width, int height, String texture, Graphics g) {
@@ -191,25 +181,16 @@ public class Viewer extends JPanel {
         }
     }
 
-
     private void drawPlayer(int x, int y, int width, int height, String texture, Graphics g) {
         File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-        // TODO playerRect needs to have x,y of player before moving. Find where player passes x,y to gameworld!
-        int paintTo = 80;
-        for(Rectangle wall: wallRectangles){
-             if(playerRect.intersects(wall)){
-                 paintTo = 0;
-                 break;
-             }
-        }
-        wallRectangles.clear();
+
         try {
             Image myImage = ImageIO.read(TextureToLoad);
-            //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
+            //The sprite is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             int currentPositionInAnimation = ((int) ((CurrentAnimationTime % 100) / 10)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
-            g.drawImage(myImage, x, y, x + paintTo, y + paintTo, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
-            // TODO add rectangle = player.w, player.h and same for wall tiles. check on each frame if player.rect.intersect(wall.rect)
+            g.drawImage(myImage, x, y, x + 80, y + 80, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
+            // TODO add rectangle = player.w, player.h and same for wall tiles. check on each frame if playerRect.intersects(wall.rect)
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -219,16 +200,8 @@ public class Viewer extends JPanel {
         //Lighnting Png from https://opengameart.org/content/animated-spaceships  its 32x32 thats why I know to increament by 32 each time
         // Bullets from https://opengameart.org/forumtopic/tatermands-art
         // background image from https://www.needpix.com/photo/download/677346/space-stars-nebula-background-galaxy-universe-free-pictures-free-photos-free-images
-
     }
-
-    private void detectCollsion() {
-
-    }
-
 }
-
-
 /*
  * 
  * 

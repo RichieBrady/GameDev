@@ -1,0 +1,6 @@
+Friends have been kidnapped by an evil entity and taken to be imprisoned in a dungeon. The players goal is to
+traverse the dungeon, fight monsters, and free your friends located at different parts of the dungeon map.
+
+Player frees friends one by one. Once freed the friend will join the players party and will join the player in battle.
+
+Player must kill certain monsters on the map to get keys that unlock gates.

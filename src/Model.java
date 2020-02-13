@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -36,7 +38,11 @@ public class Model {
     private Controller controller = Controller.getInstance();
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
+    private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
+    private final ArrayList<Integer> wallTileIDs = new ArrayList<>(
+            Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
     private int Score = 0;
+    private  Point3f checkForPlayerCollision;
 
     public Model() {
         //setup game world
@@ -141,10 +147,15 @@ public class Model {
 
         //check for movement and if you fired a bullet
 
+        // temporary point that takes player current position and applies new vector which is checked in viewer
+        // for wall collision. If collision...
+        checkForPlayerCollision = Player.getCentre();
+
         if (Controller.getInstance().isKeyAPressed()) {
+            checkForPlayerCollision.ApplyVector(new Vector3f(-2, 0, 0));
+            detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-                getPlayer().setCollided(false);
             }
             else{
                 Player.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
@@ -152,49 +163,65 @@ public class Model {
         }
 
         if (Controller.getInstance().isKeyDPressed()) {
+            checkForPlayerCollision.ApplyVector(new Vector3f(2, 0, 0));
+            detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
-                System.out.println("collisions: model");
+                System.out.println("collision in controller");
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-                getPlayer().setCollided(false);
             }
             else{
                 Player.getCentre().ApplyVector(new Vector3f(2, 0, 0));
             }
-
         }
 
         if (Controller.getInstance().isKeyWPressed()) {
+            checkForPlayerCollision.ApplyVector(new Vector3f(0, 2, 0));
+            detectCollsion(checkForPlayerCollision);
             if (getPlayer().isCollided()){
+                System.out.println("collision in controller");
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-                getPlayer().setCollided(false);
             }
             else{
                 Player.getCentre().ApplyVector(new Vector3f(0, 2, 0));
             }
-
         }
 
         if (Controller.getInstance().isKeySPressed()) {
+            checkForPlayerCollision.ApplyVector(new Vector3f(0, -2, 0));
+            detectCollsion(checkForPlayerCollision);
+
             if (getPlayer().isCollided()){
+                System.out.println("collision in controller");
                 Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-                getPlayer().setCollided(false);
             }
             else{
                 Player.getCentre().ApplyVector(new Vector3f(0, -2, 0));
             }
-
         }
 
         if (Controller.getInstance().isKeySpacePressed()) {
             CreateBullet();
             Controller.getInstance().setKeySpacePressed(false);
         }
+    }
 
+    private void detectCollsion(Point3f playerLocation) {
+        // TODO playerRect needs to have x,y of player before moving. Find where player passes x,y to gameworld!
+        Rectangle playerRect = new Rectangle((int)playerLocation.getX(), (int)playerLocation.getY(), 75, 75);
+        for (Rectangle wall : wallRectangles) {
+            if (playerRect.intersects(wall)) {
+                //System.out.println("collided");
+                getPlayer().setCollided(true);
+                break;
+            } else {
+                getPlayer().setCollided(false);
+            }
+        }
+        wallRectangles.clear();
     }
 
     private void CreateBullet() {
         BulletList.add(new GameObject("res/bullet.png", 32, 64, new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f)));
-
     }
 
     public GameObject getPlayer() {
@@ -213,9 +240,10 @@ public class Model {
         return Score;
     }
 
-
+    public CopyOnWriteArrayList<Rectangle> getWallRectangles() {
+        return wallRectangles;
+    }
 }
-
 
 /* MODEL OF your GAME world 
  * MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
