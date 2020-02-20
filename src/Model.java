@@ -1,6 +1,4 @@
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import util.GameObject;
@@ -38,13 +36,19 @@ public class Model {
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
+    private boolean changeScreen = false;
+    private boolean up = false;
+    private boolean down = false;
+    private boolean left = false;
+    private boolean right = false;
+    private int bool = 0;
 
     private int Score = 0;
 
     public Model() {
         //setup game world
         //Player
-        Player = new GameObject("res/walk.png", 50, 50, new Point3f(250, 500, 0));
+        Player = new GameObject("res/walk.png", 50, 50, new Point3f(100, 700, 0));
         //Enemies  starting with four
 
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
@@ -146,6 +150,7 @@ public class Model {
 
         // temporary point that takes player current position and applies new vector which is checked in movementLogic()
         // for wall collision. If collision...
+        //System.out.println(Player.getCentre().getX() + " " + Player.getCentre().getY());
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
         int distanceToTravel = 2;
 
@@ -171,7 +176,7 @@ public class Model {
         }
     }
 
-    private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX){
+    private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
         int x = 0;
         int y = 0;
 
@@ -190,6 +195,7 @@ public class Model {
         }
         else{
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
+            changeMapChunk();
         }
     }
 
@@ -199,11 +205,37 @@ public class Model {
 
         for (Rectangle wall : wallRectangles) {
             if (playerRect.intersects(wall)) {
+                System.out.println("collided: " + wall.getX() + " " + wall.getY());
                 getPlayer().setCollided(true);
                 break;
             }
         }
-        //wallRectangles.clear();
+    }
+
+    private void changeMapChunk() {
+
+        if (Player.getCentre().getY() == 0){
+            setUp(true);
+            bool = 1;
+            changeScreen = true;
+            setNewPlayer(Player.getCentre().getX(), 770);
+
+        } else if (Player.getCentre().getY() == 770) {
+            setDown(true);
+            bool = 1;
+            changeScreen = true;
+            setNewPlayer(Player.getCentre().getX(), 0);
+        } else if (Player.getCentre().getX() == 0) {
+            setLeft(true);
+            bool = 1;
+            changeScreen = true;
+            setNewPlayer(980, getPlayer().getCentre().getY());
+        } else if (Player.getCentre().getX() == 980) {
+            setRight(true);
+            bool = 1;
+            changeScreen = true;
+            setNewPlayer(0, getPlayer().getCentre().getY());
+        }
     }
 
     private void CreateBullet() {
@@ -228,6 +260,61 @@ public class Model {
 
     public CopyOnWriteArrayList<Rectangle> getWallRectangles() {
         return wallRectangles;
+    }
+
+    public boolean isChangeScreen() {
+        return changeScreen;
+    }
+
+    public void setChangeScreen(boolean changeScreen) {
+        this.changeScreen = changeScreen;
+    }
+
+    public void setNewPlayer(float x, float y){
+        this.Player = new GameObject("res/walk.png", 50, 50, new Point3f(x, y, 0));
+    }
+
+    public boolean isUp() {
+        return up;
+    }
+
+    public boolean isDown() {
+        return down;
+    }
+
+    public boolean isLeft() {
+        return left;
+    }
+
+    public boolean isRight() {
+        return right;
+    }
+
+    // A
+    // Start
+
+    public void setUp(boolean up) {
+        this.up = up;
+    }
+
+    public void setDown(boolean down) {
+        this.down = down;
+    }
+
+    public void setLeft(boolean left) {
+        this.left = left;
+    }
+
+    public void setRight(boolean right) {
+        this.right = right;
+    }
+
+    public int getBool() {
+        return bool;
+    }
+
+    public void setBool(int bool) {
+        this.bool = bool;
     }
 }
 

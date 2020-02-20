@@ -1,7 +1,4 @@
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,10 +37,16 @@ SOFTWARE.
  */
 public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
+
     private final ArrayList<Integer> wallTileIDs = new ArrayList<>(
             Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
+
     private final String filepath = "res/calc/Dungeon/";
     private boolean wallTilesCollected = false;
+    private int colMin = 0;
+    private int colMax = 16;
+    private int rowMin = 35;
+    private int rowMax = 47;
 
     Model gameworld = new Model();
     TileMaps tileMaps = new TileMaps();
@@ -81,8 +84,6 @@ public class Viewer extends JPanel {
         //Draw background
         drawBackground(g);
 
-        // TODO or calculate here if player collided?
-
         //Draw player Game Object
         int x = (int) gameworld.getPlayer().getCentre().getX();
         int y = (int) gameworld.getPlayer().getCentre().getY();
@@ -91,9 +92,11 @@ public class Viewer extends JPanel {
         String texture = gameworld.getPlayer().getTexture();
 
         //Draw player
-        System.out.println("Player: " + x + " " + y);
-        drawPlayer(x, y, width, height, texture, g);
-
+        //System.out.println("Player: " + x + " " + y);
+        //System.out.println(gameworld.isChangeScreen());
+        if (gameworld.getBool() == 0) {
+            drawPlayer(x, y, width, height, texture, g);
+        }
         // //Draw Bullets
         // // change back
         // gameworld.getBullets().forEach((temp) ->
@@ -128,31 +131,59 @@ public class Viewer extends JPanel {
         //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         // 12 tiles high and 16 tiles wide for each map chunk
         // [0]  [15] [31] [47] [63]
-        // [11] [15] [31] [47] [63]
-        // [23] [15] [31] [47] [63]
-        // [35] [15] [31] [47] [63]
-        // [47] [15] [31] [47] [63]
-        final int colMin = 0;
-        final int colMax = 16;
-        int row = 0;
+        // [12] [15] [31] [47] [63]
+        // [24] [15] [31] [47] [63]
+        // [36] [15] [31] [47] [63]
+        // [48] [15] [31] [47] [63]
+        // TODO need to fix tile map indexing
+        int row = rowMin;
         int column = colMin;
-        final int renderedTileSize = 64;
+
+        if (gameworld.getBool() == 1) {
+            if (gameworld.isUp()) {
+                System.out.println("Up");
+                rowMin -= 13;
+                rowMax -= 13;
+                gameworld.setUp(false);
+            } else if (gameworld.isDown()) {
+                System.out.println("Down");
+                rowMin += 13;
+                rowMax += 13;
+                gameworld.setDown(false);
+            } else if (gameworld.isLeft()) {
+                System.out.println("Left");
+                colMin -= 16;
+                colMax -= 16;
+                gameworld.setLeft(false);
+            } else if (gameworld.isRight()) {
+                System.out.println("Right");
+                colMin += 16;
+                colMax += 16;
+                gameworld.setRight(false);
+            }
+        }
+
+        int renderedTileSize = 64;
 
         for (int i = 0; i <= 768; i += renderedTileSize) {
             for (int j = 0; j <= 1024; j += renderedTileSize) {
                 String filename = "";
 
-                if (!wallTilesCollected) {
-                    if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
-                        Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
-                        gameworld.getWallRectangles().add(wall_rect);
-                    }
-                }
                 filename = tileMaps.getDungeonMapGroundLayer()[row][column] + ".png";
+//                System.out.println(row + " " + column);
                 File TextureToLoad = new File(filepath + filename);
                 try {
                     Image myImage = ImageIO.read(TextureToLoad);
+
                     g.drawImage(myImage, j, i, j + renderedTileSize, i + renderedTileSize, 0, 0, 16, 16, null);
+                    if (!wallTilesCollected) {
+                        if (wallTileIDs.contains(tileMaps.getDungeonMapGroundLayer()[row][column])) {
+                            Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
+                            g.setColor(Color.red);
+                            g.fillRect((int)wall_rect.getX(), (int)wall_rect.getY(), (int)wall_rect.getWidth(), (int)wall_rect.getHeight());
+                            gameworld.getWallRectangles().add(wall_rect);
+                        }
+                    }
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -163,11 +194,19 @@ public class Viewer extends JPanel {
                     column = colMin;
                 }
             }
-            // column = colMin;
-            row++;
+            if (row < rowMax) {
+                row++;
+            } else {
+                row = rowMin;
+            }
         }
+
         wallTilesCollected = true;
-        /*TODO No camera, player moves freely around current chunk then moves to tile leading off screen for the next chunk to be rendered*/
+        if (gameworld.getBool() == 1) {
+            gameworld.setBool(0);
+            gameworld.getWallRectangles().clear();
+            wallTilesCollected = false;
+        }
     }
 
     private void drawBullet(int x, int y, int width, int height, String texture, Graphics g) {
@@ -192,7 +231,6 @@ public class Viewer extends JPanel {
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             int currentPositionInAnimation = ((int) ((CurrentAnimationTime % 100) / 10)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
             g.drawImage(myImage, x, y, x + 64, y + 64, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
-            // TODO add rectangle = player.w, player.h and same for wall tiles. check on each frame if playerRect.intersects(wall.rect)
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -202,6 +240,22 @@ public class Viewer extends JPanel {
         //Lighnting Png from https://opengameart.org/content/animated-spaceships  its 32x32 thats why I know to increament by 32 each time
         // Bullets from https://opengameart.org/forumtopic/tatermands-art
         // background image from https://www.needpix.com/photo/download/677346/space-stars-nebula-background-galaxy-universe-free-pictures-free-photos-free-images
+    }
+
+    public void setColMin(int colMin) {
+        this.colMin = colMin;
+    }
+
+    public void setColMax(int colMax) {
+        this.colMax = colMax;
+    }
+
+    public void setRowMin(int rowMin) {
+        this.rowMin = rowMin;
+    }
+
+    public void setRowMax(int rowMax) {
+        this.rowMax = rowMax;
     }
 }
 /*

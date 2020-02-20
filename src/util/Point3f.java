@@ -33,6 +33,7 @@ public class Point3f {
     private float z;
 
     private int boundary = 980;
+    private int boundaryY = 770;
 
 
     // default constructor
@@ -93,13 +94,19 @@ public class Point3f {
     //Use for direct application of a Vector
     public void ApplyVector(Vector3f vector) {
         setX(CheckBoundary(this.getX() + vector.getX()));
-        setY(CheckBoundary(this.getY() - vector.getY()));
+        setY(CheckBoundaryY(this.getY() - vector.getY()));
         setZ(CheckBoundary(this.getZ() - vector.getZ()));
     }
 
     private float CheckBoundary(float f) {
         if (f < 0) f = 0.0f;
         if (f > boundary) f = (float) boundary;
+        return f;
+    }
+
+    private float CheckBoundaryY(float f) {
+        if (f < 0) f = 0.0f;
+        if (f > boundaryY) f = (float) boundaryY;
         return f;
     }
 
