@@ -73,6 +73,10 @@ public class GameObject {
         return blanktexture;
     }
 
+    public void setTextureLocation(String textureLocation) {
+        this.textureLocation = textureLocation;
+    }
+
     public boolean isCollided() {
         return collided;
     }

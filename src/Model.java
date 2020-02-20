@@ -36,9 +36,6 @@ public class Model {
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
-    private boolean changeScreen = false;
-    private boolean up = false;
-    private boolean down = false;
     private boolean left = false;
     private boolean right = false;
     private int bool = 0;
@@ -48,15 +45,13 @@ public class Model {
     public Model() {
         //setup game world
         //Player
-        Player = new GameObject("res/walk.png", 50, 50, new Point3f(100, 700, 0));
+        Player = new GameObject("res/calc/wizard/tile001.png", 48, 48, new Point3f(500, 500, 0));
         //Enemies  starting with four
 
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 500), 0, 0)));
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 500), 0, 0)));
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 400), 0, 0)));
-
-
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
@@ -150,7 +145,6 @@ public class Model {
 
         // temporary point that takes player current position and applies new vector which is checked in movementLogic()
         // for wall collision. If collision...
-        //System.out.println(Player.getCentre().getX() + " " + Player.getCentre().getY());
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
         int distanceToTravel = 2;
 
@@ -171,7 +165,7 @@ public class Model {
         }
 
         if (Controller.getInstance().isKeySpacePressed()) {
-            CreateBullet();
+            getPlayer().setTextureLocation("res/calc/warrior/right_attack.png");
             Controller.getInstance().setKeySpacePressed(false);
         }
     }
@@ -189,18 +183,17 @@ public class Model {
 
         checkForPlayerCollision.ApplyVector(new Vector3f(x, y, 0));
         detectCollision(checkForPlayerCollision);
+
         if (getPlayer().isCollided()){
             Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
             Player.setCollided(false);
         }
         else{
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
-            changeMapChunk();
         }
     }
 
     private void detectCollision(Point3f playerLocation) {
-        // TODO playerRect needs to have x,y of player before moving. Find where player passes x,y to gameworld!
         Rectangle playerRect = new Rectangle((int)playerLocation.getX(), (int)playerLocation.getY(), 48, 64);
 
         for (Rectangle wall : wallRectangles) {
@@ -209,32 +202,6 @@ public class Model {
                 getPlayer().setCollided(true);
                 break;
             }
-        }
-    }
-
-    private void changeMapChunk() {
-
-        if (Player.getCentre().getY() == 0){
-            setUp(true);
-            bool = 1;
-            changeScreen = true;
-            setNewPlayer(Player.getCentre().getX(), 770);
-
-        } else if (Player.getCentre().getY() == 770) {
-            setDown(true);
-            bool = 1;
-            changeScreen = true;
-            setNewPlayer(Player.getCentre().getX(), 0);
-        } else if (Player.getCentre().getX() == 0) {
-            setLeft(true);
-            bool = 1;
-            changeScreen = true;
-            setNewPlayer(980, getPlayer().getCentre().getY());
-        } else if (Player.getCentre().getX() == 980) {
-            setRight(true);
-            bool = 1;
-            changeScreen = true;
-            setNewPlayer(0, getPlayer().getCentre().getY());
         }
     }
 
@@ -262,24 +229,8 @@ public class Model {
         return wallRectangles;
     }
 
-    public boolean isChangeScreen() {
-        return changeScreen;
-    }
-
-    public void setChangeScreen(boolean changeScreen) {
-        this.changeScreen = changeScreen;
-    }
-
     public void setNewPlayer(float x, float y){
         this.Player = new GameObject("res/walk.png", 50, 50, new Point3f(x, y, 0));
-    }
-
-    public boolean isUp() {
-        return up;
-    }
-
-    public boolean isDown() {
-        return down;
     }
 
     public boolean isLeft() {
@@ -288,17 +239,6 @@ public class Model {
 
     public boolean isRight() {
         return right;
-    }
-
-    // A
-    // Start
-
-    public void setUp(boolean up) {
-        this.up = up;
-    }
-
-    public void setDown(boolean down) {
-        this.down = down;
     }
 
     public void setLeft(boolean left) {
