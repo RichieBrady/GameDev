@@ -21,6 +21,7 @@ public class MouseController implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         setMouseClicked(true);
+        System.out.println(e.getX() + " " + e.getY());
     }
 
     @Override

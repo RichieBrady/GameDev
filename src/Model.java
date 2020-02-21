@@ -49,7 +49,8 @@ public class Model {
     public Model() {
         // setup game world
         // Player
-        Player = new GameObject("res/green_fly/down_right.png", 48, 48, new Point3f(300, 300, 0));
+        String[] textures = {""};
+        Player = new GameObject(new String[] {"res/green_fly/up_right.png", "res/green_fly/down_right.png"}, 80, 80, new Point3f(300, 300, 0));
         // Enemies starting with four
 
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
@@ -118,7 +119,7 @@ public class Model {
 
         if (EnemiesList.size() < 2) {
             while (EnemiesList.size() < 6) {
-                EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 1000), 0, 0)));
+                //EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 1000), 0, 0)));
             }
         }
     }
@@ -174,11 +175,11 @@ public class Model {
 
         // control y (click for up/let go for down)
         if (MouseController.isMouseClicked()) {
-            if (getPlayer().getTexture().equalsIgnoreCase("res/green_fly/down_right.png")) {
-                getPlayer().setTextureLocation("res/green_fly/up_right.png");
-            } else {
-                getPlayer().setTextureLocation("res/green_fly/down_right.png");
-            }
+//            if (getPlayer().getTexture().equalsIgnoreCase("res/green_fly/down_right.png")) {
+//                getPlayer().setTextureLocation("res/green_fly/up_right.png");
+//            } else {
+//                getPlayer().setTextureLocation("res/green_fly/down_right.png");
+//            }
             if (jump >= 0) {
                 System.out.println("click");
                 yVelocity = 10;
@@ -188,9 +189,9 @@ public class Model {
         }
 
         if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
-            getPlayer().setTextureLocation("res/green_fly/down_left.png");
+            getPlayer().setTextureLocations(new String[] {"res/green_fly/up_left.png", "res/green_fly/down_left.png"});
         } else {
-            getPlayer().setTextureLocation("res/green_fly/down_right.png");
+            getPlayer().setTextureLocations(new String[] {"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
         }
     }
 
@@ -242,7 +243,6 @@ public class Model {
 
         for (Rectangle wall : wallRectangles) {
             if (playerRect.intersects(wall)) {
-                System.out.println("collided: " + wall.getX() + " " + wall.getY());
                 getPlayer().setCollided(true);
                 break;
             }
@@ -250,7 +250,7 @@ public class Model {
     }
 
     private void CreateBullet() {
-        BulletList.add(new GameObject("res/bullet.png", 32, 64, new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f)));
+        //BulletList.add(new GameObject("res/bullet.png", 32, 64, new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f)));
     }
 
     public GameObject getPlayer() {

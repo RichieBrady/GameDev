@@ -1,7 +1,5 @@
 package util;
 
-import java.awt.*;
-
 /*
  * Created by Abraham Campbell on 15/01/2020.
  *   Copyright (c) 2020  Abraham Campbell
@@ -33,16 +31,16 @@ public class GameObject {
     private int height = 10;
     private boolean hasTextured = false;
     private boolean collided = false;
-    private String textureLocation;
-    private String blanktexture = "res/blankSprite.png";
+    private String[] textureLocations;
+    private String[] blanktexture = {"res/blankSprite.png", "res/blankSprite.png"};
 
     public GameObject() {
 
     }
 
-    public GameObject(String textureLocation, int width, int height, Point3f centre) {
+    public GameObject(String[] textureLocations, int width, int height, Point3f centre) {
         hasTextured = true;
-        this.textureLocation = textureLocation;
+        this.textureLocations = textureLocations;
         this.width = width;
         this.height = height;
         this.centre = centre;
@@ -65,16 +63,16 @@ public class GameObject {
         return height;
     }
 
-    public String getTexture() {
+    public String[] getTexture() {
         if (hasTextured) {
-            return textureLocation;
+            return textureLocations;
         }
 
         return blanktexture;
     }
 
-    public void setTextureLocation(String textureLocation) {
-        this.textureLocation = textureLocation;
+    public void setTextureLocations(String[] textureLocations) {
+        this.textureLocations = textureLocations;
     }
 
     public boolean isCollided() {
