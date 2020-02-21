@@ -32,16 +32,15 @@ SOFTWARE.
 public class Model {
 
     private GameObject Player;
-    private Controller controller = Controller.getInstance();
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
+    private Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
 
     private boolean left = false;
     private boolean right = false;
     private double yVelocity = 0;
     private double xVelocity = 0;
-    private double gravity = 0.5;
     private int jump = 0;
 
     private int Score = 0;
@@ -139,7 +138,6 @@ public class Model {
                 BulletList.remove(temp);
             }
         }
-
     }
 
     private void playerLogic() {
@@ -175,11 +173,6 @@ public class Model {
 
         // control y (click for up/let go for down)
         if (MouseController.isMouseClicked()) {
-//            if (getPlayer().getTexture().equalsIgnoreCase("res/green_fly/down_right.png")) {
-//                getPlayer().setTextureLocation("res/green_fly/up_right.png");
-//            } else {
-//                getPlayer().setTextureLocation("res/green_fly/down_right.png");
-//            }
             if (jump >= 0) {
                 System.out.println("click");
                 yVelocity = 10;
@@ -196,7 +189,10 @@ public class Model {
     }
 
     public void update(){
-        yVelocity -= gravity;
+        double gravity = 0.5;
+        if (!getPlayer().isCollided()) {
+            yVelocity -= gravity;
+        }
 
         if (left && xVelocity > 0) {
             xVelocity -= 0.2;
@@ -231,7 +227,6 @@ public class Model {
 
         if (getPlayer().isCollided()){
             Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-            Player.setCollided(false);
         }
         else{
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
@@ -239,14 +234,14 @@ public class Model {
     }
 
     private void detectCollision(Point3f playerLocation) {
-        Rectangle playerRect = new Rectangle((int)playerLocation.getX(), (int)playerLocation.getY(), 48, 64);
+        int width = getPlayer().getWidth();
+        int height = getPlayer().getHeight();
+        int x = (int)playerLocation.getX();
+        int y = (int)playerLocation.getY();
 
-        for (Rectangle wall : wallRectangles) {
-            if (playerRect.intersects(wall)) {
-                getPlayer().setCollided(true);
-                break;
-            }
-        }
+        Rectangle playerRect = new Rectangle(x, y + 10, width - 10, height -15);
+
+        getPlayer().setCollided(playerRect.intersects(groundCollider));
     }
 
     private void CreateBullet() {
@@ -269,32 +264,12 @@ public class Model {
         return Score;
     }
 
-    public CopyOnWriteArrayList<Rectangle> getWallRectangles() {
-        return wallRectangles;
-    }
-
-    public boolean isLeft() {
-        return left;
-    }
-
-    public boolean isRight() {
-        return right;
-    }
-
     public void setLeft(boolean left) {
         this.left = left;
     }
 
     public void setRight(boolean right) {
         this.right = right;
-    }
-
-    public double getGravity() {
-        return gravity;
-    }
-
-    public int getJump() {
-        return jump;
     }
 }
 

@@ -32,7 +32,7 @@ public class Point3f {
     private float y;
     private float z;
 
-    private int boundary = 980;
+    private int boundary = 1460;
     private int boundaryY = 770;
 
 
