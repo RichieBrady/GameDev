@@ -7,9 +7,6 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import util.Point3f;
-import util.TileMaps;
-
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -41,11 +38,9 @@ public class Viewer extends JPanel {
     private final ArrayList<Integer> wallTileIDs = new ArrayList<>(
             Arrays.asList(121, 122, 123, 124, 125, 126, 127, 151, 152, 153, 154, 155, 156, 157));
 
-    private final String filepath = "res/calc/Dungeon/";
     private boolean wallTilesCollected = false;
 
     Model gameworld = new Model();
-    TileMaps tileMaps = new TileMaps();
 
     public Viewer(Model World) {
         this.gameworld = World;
@@ -79,6 +74,8 @@ public class Viewer extends JPanel {
 
         //Draw background
         drawBackground(g);
+
+        gameworld.update();
 
         //Draw player Game Object
         int x = (int) gameworld.getPlayer().getCentre().getX();
@@ -124,42 +121,24 @@ public class Viewer extends JPanel {
     private void drawBackground(Graphics g) {
         //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 
-        int row = 0;
-        int column = 0;
-        int colMax = 16;
-        int renderedTileSize = 48;
-        for (int i = 0; i < 768; i += renderedTileSize) {
-            for (int j = 0; j < 768; j += renderedTileSize) {
-                String filename = "";
 
-                filename = tileMaps.getLevel1Wall()[row][column] + ".png";
-
-                File TextureToLoad = new File(filepath + filename);
+                File TextureToLoad = new File("res/Full-Background.png");
                 try {
                     Image myImage = ImageIO.read(TextureToLoad);
 
-                    g.drawImage(myImage, j, i, j + renderedTileSize, i + renderedTileSize, 0, 0, 16, 16, null);
-                    if (!wallTilesCollected) {
-                        if (wallTileIDs.contains(tileMaps.getLevel1Wall()[row][column])) {
-                            Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
-                            g.setColor(Color.red);
-                            g.fillRect((int)wall_rect.getX(), (int)wall_rect.getY(), (int)wall_rect.getWidth(), (int)wall_rect.getHeight());
-                            gameworld.getWallRectangles().add(wall_rect);
-                        }
-                    }
+                    g.drawImage(myImage, 0, 0, 1536, 768, 0, 0, 3072, 1536, null);
+//                    if (!wallTilesCollected) {
+//                        if (wallTileIDs.contains(tileMaps.getLevel1Wall()[row][column])) {
+//                            Rectangle wall_rect = new Rectangle(j, i, renderedTileSize, renderedTileSize);
+//                            g.setColor(Color.red);
+//                            g.fillRect((int)wall_rect.getX(), (int)wall_rect.getY(), (int)wall_rect.getWidth(), (int)wall_rect.getHeight());
+//                            gameworld.getWallRectangles().add(wall_rect);
+//                        }
+//                    }
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                if (column < 15) {
-                    column++;
-                } else {
-                    column = 0;
-                }
-            }
-            row++;
-        }
-        wallTilesCollected = true;
     }
 
     private void drawBullet(int x, int y, int width, int height, String texture, Graphics g) {
@@ -182,8 +161,9 @@ public class Viewer extends JPanel {
             Image myImage = ImageIO.read(TextureToLoad);
             // The sprite is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             // remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            int currentPositionInAnimation = ((int) (((CurrentAnimationTime*6) % 100) / 10)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
-            g.drawImage(myImage, x, y, x + 64, y + 64, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
+            //int currentPositionInAnimation = ((int) (((CurrentAnimationTime*6) % 100) / 10)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
+            //g.drawImage(myImage, x, y, x + 64, y + 64, currentPositionInAnimation, 0, currentPositionInAnimation + 31, 32, null);
+            g.drawImage(myImage, x, y, x+80, y+80, 0, 0, 610, 511, null);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

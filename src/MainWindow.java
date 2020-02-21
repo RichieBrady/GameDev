@@ -1,7 +1,5 @@
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,10 +38,12 @@ SOFTWARE.
  */
 
 public class MainWindow {
-    private static JFrame frame = new JFrame("Game"); // Change to the name of your game
+    private static JFrame frame = new JFrame("Shoo Fly"); // Change to the name of your game
     private static Model gameworld = new Model();
     private static Viewer canvas = new Viewer(gameworld);
     private KeyListener Controller = new Controller();
+    private MouseListener MouseController = new MouseController();
+    private MouseMotionListener MouseMotionController = new MouseMotionController();
     private static int TargetFPS = 100;
     private static boolean startGame = false;
     private JLabel BackgroundImageForStartMenu;
@@ -65,6 +65,8 @@ public class MainWindow {
                 BackgroundImageForStartMenu.setVisible(false);
                 canvas.setVisible(true);
                 canvas.addKeyListener(Controller);    //adding the controller to the Canvas
+                canvas.addMouseListener(MouseController); // add mouse controller
+                canvas.addMouseMotionListener(MouseMotionController); // add motion controller
                 canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
                 startGame = true;
             }
@@ -72,7 +74,7 @@ public class MainWindow {
         startMenuButton.setBounds(400, 500, 200, 40);
 
         //loading background image
-        File BackroundToLoad = new File("res/StartUpScreen.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File BackroundToLoad = new File("res/green_fly/down_left.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));

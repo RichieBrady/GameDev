@@ -36,17 +36,21 @@ public class Model {
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
+
     private boolean left = false;
     private boolean right = false;
-    private int bool = 0;
+    private double yVelocity = 0;
+    private double xVelocity = 0;
+    private double gravity = 0.5;
+    private int jump = 0;
 
     private int Score = 0;
 
     public Model() {
-        //setup game world
-        //Player
-        Player = new GameObject("res/calc/wizard/tile001.png", 48, 48, new Point3f(500, 500, 0));
-        //Enemies  starting with four
+        // setup game world
+        // Player
+        Player = new GameObject("res/green_fly/down_right.png", 48, 48, new Point3f(300, 300, 0));
+        // Enemies starting with four
 
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
 //        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 500), 0, 0)));
@@ -145,29 +149,69 @@ public class Model {
 
         // temporary point that takes player current position and applies new vector which is checked in movementLogic()
         // for wall collision. If collision...
-        Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
-        int distanceToTravel = 2;
 
-        if (Controller.getInstance().isKeyAPressed()) {
-            movementLogic(checkForPlayerCollision, -distanceToTravel, true);
-        }
-
-        if (Controller.getInstance().isKeyDPressed()) {
-            movementLogic(checkForPlayerCollision, distanceToTravel, true);
-        }
 
         if (Controller.getInstance().isKeyWPressed()) {
-            movementLogic(checkForPlayerCollision, distanceToTravel, false);
+
         }
 
         if (Controller.getInstance().isKeySPressed()) {
-            movementLogic(checkForPlayerCollision, -distanceToTravel, false);
+           // movementLogic(checkForPlayerCollision, -distanceToTravel, false);
+        }
+        Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
+        // control x left
+        if (Controller.getInstance().isKeyAPressed()) {
+            xVelocity = 1;
+            setLeft(true);
+            movementLogic(checkForPlayerCollision, (int)-xVelocity, true);
+        }
+        // control x right
+        if (Controller.getInstance().isKeyDPressed()) {
+            xVelocity = 1;
+            setRight(true);
+            movementLogic(checkForPlayerCollision, (int)xVelocity, true);
         }
 
-        if (Controller.getInstance().isKeySpacePressed()) {
-            getPlayer().setTextureLocation("res/calc/warrior/right_attack.png");
-            Controller.getInstance().setKeySpacePressed(false);
+        // control y (click for up/let go for down)
+        if (MouseController.isMouseClicked()) {
+            if (getPlayer().getTexture().equalsIgnoreCase("res/green_fly/down_right.png")) {
+                getPlayer().setTextureLocation("res/green_fly/up_right.png");
+            } else {
+                getPlayer().setTextureLocation("res/green_fly/down_right.png");
+            }
+            if (jump >= 0) {
+                System.out.println("click");
+                yVelocity = 10;
+                jump = 10;
+            }
+            MouseController.setMouseClicked(false);
         }
+
+        if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
+            getPlayer().setTextureLocation("res/green_fly/down_left.png");
+        } else {
+            getPlayer().setTextureLocation("res/green_fly/down_right.png");
+        }
+    }
+
+    public void update(){
+        yVelocity -= gravity;
+
+        if (left && xVelocity > 0) {
+            xVelocity -= 0.2;
+        } else if (right && xVelocity > 0) {
+            xVelocity += 0.2;
+        } else if (xVelocity == 0) {
+            left = false;
+            right = false;
+        }
+
+        if (jump > 0) {
+            jump--;
+        }
+
+        Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
+        movementLogic(checkForPlayerCollision, (int) yVelocity, false);
     }
 
     private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
@@ -229,10 +273,6 @@ public class Model {
         return wallRectangles;
     }
 
-    public void setNewPlayer(float x, float y){
-        this.Player = new GameObject("res/walk.png", 50, 50, new Point3f(x, y, 0));
-    }
-
     public boolean isLeft() {
         return left;
     }
@@ -249,12 +289,12 @@ public class Model {
         this.right = right;
     }
 
-    public int getBool() {
-        return bool;
+    public double getGravity() {
+        return gravity;
     }
 
-    public void setBool(int bool) {
-        this.bool = bool;
+    public int getJump() {
+        return jump;
     }
 }
 
