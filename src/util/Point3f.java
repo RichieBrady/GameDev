@@ -90,7 +90,6 @@ public class Point3f {
         return new Vector3f(this.getX() - Minus.getX(), this.getY() - Minus.getY(), this.getZ() - Minus.getZ());
     }
 
-
     //Use for direct application of a Vector
     public void ApplyVector(Vector3f vector) {
         setX(CheckBoundary(this.getX() + vector.getX()));

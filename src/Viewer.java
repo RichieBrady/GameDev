@@ -36,6 +36,7 @@ public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
     private boolean wallTilesCollected = false;
     Model gameworld = new Model();
+    int enemyAnimIndex = 0;
 
     public Viewer(Model World) {
         this.gameworld = World;
@@ -91,22 +92,28 @@ public class Viewer extends JPanel {
         // });
 
         // //Draw Enemies
-        // gameworld.getEnemies().forEach((temp) ->
-        // {
-        //     drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+         gameworld.getEnemies().forEach((temp) ->
+         {
+             drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
 
-        // });
+         });
     }
 
-    private void drawEnemies(int x, int y, int width, int height, String texture, Graphics g) {
-        File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+    private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
+        File TextureToLoad;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
+            int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
+            if (currentPositionInAnimation % 2 == 0) {
+                TextureToLoad = new File(texture[0]);
+            } else {
+                TextureToLoad = new File(texture[1]);
+            }
             Image myImage = ImageIO.read(TextureToLoad);
             //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            int currentPositionInAnimation = ((int) (CurrentAnimationTime % 10) * 48); //slows down animation so every 10 frames we get another frame so every 100ms
-            g.drawImage(myImage, x, y, x + width, y + width, currentPositionInAnimation, 0, currentPositionInAnimation + 47, 48, null);
-
+            g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, 456, 365, null);
+            g.setColor(Color.red);
+            g.drawRect(x, y + 15, width - 10, height - 25);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -149,7 +156,7 @@ public class Viewer extends JPanel {
 
             // The sprite is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             // remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 5 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
+            int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
             if (currentPositionInAnimation % 2 == 0) {
                 TextureToLoad = new File(texture[0]);
             } else {

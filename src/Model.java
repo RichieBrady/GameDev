@@ -34,7 +34,6 @@ public class Model {
     private GameObject Player;
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
-    private CopyOnWriteArrayList<Rectangle> wallRectangles = new CopyOnWriteArrayList<>();
     private Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
 
     private boolean left = false;
@@ -42,20 +41,16 @@ public class Model {
     private double yVelocity = 0;
     private double xVelocity = 0;
     private int jump = 0;
+    private boolean isHit = false;
 
     private int Score = 0;
 
     public Model() {
         // setup game world
         // Player
-        String[] textures = {""};
-        Player = new GameObject(new String[] {"res/green_fly/up_right.png", "res/green_fly/down_right.png"}, 80, 80, new Point3f(300, 300, 0));
-        // Enemies starting with four
-
-//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 400), 0, 0)));
-//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 50 + 500), 0, 0)));
-//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 500), 0, 0)));
-//        EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 100 + 400), 0, 0)));
+        String[] textures = {"res/green_fly/up_right.png", "res/green_fly/down_right.png"};
+        Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
+                new Rectangle(0, 0, 0, 0));
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
@@ -63,7 +58,7 @@ public class Model {
         // Player Logic first
         playerLogic();
         // Enemy Logic next
-        //enemyLogic();
+        enemyLogic();
         // Bullets move next
         //bulletLogic();
         // interactions between objects
@@ -72,20 +67,17 @@ public class Model {
     }
 
     private void gameLogic() {
-
-
         // this is a way to increment across the array list data structure
 
 
         //see if they hit anything
         // using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
-//        for (GameObject temp : EnemiesList) {
-//            if (Math.abs(temp.getCentre().getX() - getPlayer().getCentre().getX()) < temp.getWidth()
-//                    && Math.abs(temp.getCentre().getY() - getPlayer().getCentre().getY()) < temp.getHeight()) {
-//                EnemiesList.remove(temp);
-//                getPlayer().setCentre(new Point3f(500, 700, 0));
-//                Score -= 25;
-//            }
+        for (GameObject temp : EnemiesList) {
+            if (temp.getCollider().intersects(Player.getCollider())) {
+                Score -= 25;
+                isHit = true;
+                break;
+            }
 //            for (GameObject Bullet : BulletList) {
 //                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
 //                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
@@ -94,8 +86,12 @@ public class Model {
 //                    Score++;
 //                }
 //            }
-//        }
-
+        }
+        if(isHit){
+            getPlayer().setCentre(new Point3f(300, 300, 0));
+            getEnemies().clear();
+            isHit = false;
+        }
     }
 
     private void enemyLogic() {
@@ -103,22 +99,37 @@ public class Model {
         for (GameObject temp : EnemiesList) {
             // Move enemies
 
-            temp.getCentre().ApplyVector(new Vector3f(0, -1, 0));
-
-
+            temp.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
+            temp.setCollider(new Rectangle((int)temp.getCentre().getX(), (int)temp.getCentre().getY(), temp.getWidth(), temp.getHeight()));
             //see if they get to the top of the screen ( remember 0 is the top
-            if (temp.getCentre().getY() == 900.0f)  // current boundary need to pass value to model
+            if (temp.getCentre().getX() == 0.0f)  // current boundary need to pass value to model
             {
                 EnemiesList.remove(temp);
 
                 // enemies win so score decreased
-                Score--;
+                Score += 10;
             }
         }
 
-        if (EnemiesList.size() < 2) {
-            while (EnemiesList.size() < 6) {
-                //EnemiesList.add(new GameObject("res/calc/Minotaur/tile003.png", 50, 50, new Point3f(((float) Math.random() * 1000), 0, 0)));
+        String[] enemyTextures = {
+                "res/Grumpy_bee_enemy_game_character/PNG/1.png",
+                "res/Grumpy_bee_enemy_game_character/PNG/2.png",
+        };
+
+        if (EnemiesList.size() < 3) {
+            float y = ((float) Math.random() * 600);
+            EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533, y, 0),
+                    new Rectangle(1533, (int)y, 80, 80)));
+        }
+
+        if (EnemiesList.get(0).getCentre().getX() == 680) {
+            int i = 0;
+            while (i < 3) {
+                float y = ((float) Math.random() * 600);
+                EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533,
+                        ((float) Math.random() * 550 + 50), 0),
+                        new Rectangle(1533, (int)y, 80, 80)));
+                i++;
             }
         }
     }
@@ -148,48 +159,80 @@ public class Model {
 
         // temporary point that takes player current position and applies new vector which is checked in movementLogic()
         // for wall collision. If collision...
-
-
+        xVelocity = 2;
         if (Controller.getInstance().isKeyWPressed()) {
 
         }
 
         if (Controller.getInstance().isKeySPressed()) {
-           // movementLogic(checkForPlayerCollision, -distanceToTravel, false);
+            // movementLogic(checkForPlayerCollision, -distanceToTravel, false);
         }
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
         // control x left
         if (Controller.getInstance().isKeyAPressed()) {
-            xVelocity = 1;
+
             setLeft(true);
-            movementLogic(checkForPlayerCollision, (int)-xVelocity, true);
+            movementLogic(checkForPlayerCollision, (int) -xVelocity, true);
         }
+
         // control x right
         if (Controller.getInstance().isKeyDPressed()) {
-            xVelocity = 1;
+
             setRight(true);
-            movementLogic(checkForPlayerCollision, (int)xVelocity, true);
+            movementLogic(checkForPlayerCollision, (int) xVelocity, true);
         }
 
         // control y (click for up/let go for down)
         if (MouseController.isMouseClicked()) {
             if (jump >= 0) {
-                System.out.println("click");
-                yVelocity = 10;
-                jump = 10;
+                yVelocity = 15;
+                jump = 8;
             }
             MouseController.setMouseClicked(false);
         }
 
         if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
-            getPlayer().setTextureLocations(new String[] {"res/green_fly/up_left.png", "res/green_fly/down_left.png"});
+            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_left.png", "res/green_fly/down_left.png"});
         } else {
-            getPlayer().setTextureLocations(new String[] {"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
+            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
         }
     }
 
-    public void update(){
-        double gravity = 0.5;
+
+    private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
+        int x = 0;
+        int y = 0;
+
+        if (isX) {
+            x = distanceToTravel;
+        } else {
+            y = distanceToTravel;
+        }
+
+        checkForPlayerCollision.ApplyVector(new Vector3f(x, y, 0));
+        detectCollision(checkForPlayerCollision);
+
+        if (getPlayer().isCollided()) {
+            Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+        } else {
+            Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
+            Player.setCollider(new Rectangle((int)Player.getCentre().getX(), (int)Player.getCentre().getY() + 10, 80 - 10, 80 - 15));
+        }
+    }
+
+    private void detectCollision(Point3f playerLocation) {
+        int width = getPlayer().getWidth();
+        int height = getPlayer().getHeight();
+        int x = (int) playerLocation.getX();
+        int y = (int) playerLocation.getY();
+
+        Rectangle playerRect = new Rectangle(x, y + 10, width - 10, height - 15);
+
+        getPlayer().setCollided(playerRect.intersects(groundCollider));
+    }
+
+    public void update() {
+        double gravity = 1.5;
         if (!getPlayer().isCollided()) {
             yVelocity -= gravity;
         }
@@ -209,39 +252,6 @@ public class Model {
 
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
         movementLogic(checkForPlayerCollision, (int) yVelocity, false);
-    }
-
-    private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
-        int x = 0;
-        int y = 0;
-
-        if (isX){
-            x = distanceToTravel;
-        }
-        else {
-            y = distanceToTravel;
-        }
-
-        checkForPlayerCollision.ApplyVector(new Vector3f(x, y, 0));
-        detectCollision(checkForPlayerCollision);
-
-        if (getPlayer().isCollided()){
-            Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
-        }
-        else{
-            Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
-        }
-    }
-
-    private void detectCollision(Point3f playerLocation) {
-        int width = getPlayer().getWidth();
-        int height = getPlayer().getHeight();
-        int x = (int)playerLocation.getX();
-        int y = (int)playerLocation.getY();
-
-        Rectangle playerRect = new Rectangle(x, y + 10, width - 10, height -15);
-
-        getPlayer().setCollided(playerRect.intersects(groundCollider));
     }
 
     private void CreateBullet() {

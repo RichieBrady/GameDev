@@ -1,5 +1,7 @@
 package util;
 
+import java.awt.*;
+
 /*
  * Created by Abraham Campbell on 15/01/2020.
  *   Copyright (c) 2020  Abraham Campbell
@@ -33,17 +35,19 @@ public class GameObject {
     private boolean collided = false;
     private String[] textureLocations;
     private String[] blanktexture = {"res/blankSprite.png", "res/blankSprite.png"};
+    private Rectangle collider = new Rectangle(0, 0, 0 ,0);
 
     public GameObject() {
 
     }
 
-    public GameObject(String[] textureLocations, int width, int height, Point3f centre) {
+    public GameObject(String[] textureLocations, int width, int height, Point3f centre, Rectangle collider) {
         hasTextured = true;
         this.textureLocations = textureLocations;
         this.width = width;
         this.height = height;
         this.centre = centre;
+        this.collider = collider;
     }
 
     public Point3f getCentre() {
@@ -81,6 +85,14 @@ public class GameObject {
 
     public void setCollided(boolean collided) {
         this.collided = collided;
+    }
+
+    public void setCollider(Rectangle collider) {
+        this.collider = collider;
+    }
+
+    public Rectangle getCollider() {
+        return collider;
     }
 }
 
