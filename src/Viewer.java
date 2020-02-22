@@ -92,11 +92,18 @@ public class Viewer extends JPanel {
         // });
 
         // //Draw Enemies
-         gameworld.getEnemies().forEach((temp) ->
-         {
-             drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+        gameworld.getEnemies().forEach((temp) ->
+        {
+            drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
 
-         });
+        });
+
+        // Draw power ups
+        gameworld.getPowerUpList().forEach((temp) ->
+        {
+            drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+
+        });
     }
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
@@ -113,7 +120,7 @@ public class Viewer extends JPanel {
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, 456, 365, null);
             g.setColor(Color.red);
-            g.drawRect(x, y + 15, width - 10, height - 25);
+            g.drawRect(x + 20, y + 20, 40, 40);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -140,8 +147,24 @@ public class Viewer extends JPanel {
         try {
             Image myImage = ImageIO.read(TextureToLoad);
             //64 by 128
-            g.drawImage(myImage, x, y, x + width, y + width, 0, 0, 63, 127, null);
+            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 63, 127, null);
 
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void drawPowerUps(int x, int y, int width, int height, String[] texture, Graphics g) {
+        File TextureToLoad = new File(texture[0]);;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        try {
+
+            Image myImage = ImageIO.read(TextureToLoad);
+            //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
+            //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
+            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 320, 319, null);
+            g.setColor(Color.red);
+            g.drawRect(x, y, width, height);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -163,9 +186,14 @@ public class Viewer extends JPanel {
                 TextureToLoad = new File(texture[1]);
             }
             Image myImage = ImageIO.read(TextureToLoad);
-            g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, 610, 511, null);
+            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 610, 511, null);
             g.setColor(Color.red);
-            g.drawRect(x, y + 10, width - 10, height - 15);
+            g.drawRect(
+                    (int)gameworld.getPlayer().getCollider().getX(),
+                    (int)gameworld.getPlayer().getCollider().getY(),
+                    (int)gameworld.getPlayer().getCollider().getWidth(),
+                    (int)gameworld.getPlayer().getCollider().getHeight()
+            );
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

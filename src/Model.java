@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.TimerTask;
+import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import util.GameObject;
@@ -30,10 +32,13 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 public class Model {
-
+    // TODO IMPLEMENT: lives, difficulty, character select, power-ups, high score table
+    // TODO FIXES: fly floats above ground, enemy spawn,
     private GameObject Player;
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
+    private CopyOnWriteArrayList<GameObject> PowerUpList = new CopyOnWriteArrayList<GameObject>();
+
     private Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
 
     private boolean left = false;
@@ -43,14 +48,48 @@ public class Model {
     private int jump = 0;
     private boolean isHit = false;
 
+    private Timer enemySpawnTimer = new Timer();
+    private TimerTask enemySpawnTask = new EnemySpawnTask();
+
+    private Timer powerUpSpawnTimer = new Timer();
+    private TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
+
     private int Score = 0;
+
+    class EnemySpawnTask extends TimerTask {
+        String[] enemyTextures = {
+                "res/Grumpy_bee_enemy_game_character/PNG/1.png",
+                "res/Grumpy_bee_enemy_game_character/PNG/2.png",
+        };
+        public void run() {
+            float y = ((float) Math.random() * 600);
+            EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533, y, 0),
+                    new Rectangle(1533, (int)y, 50, 50)));
+        }
+    }
+
+    class PowerUpSpawnTask extends TimerTask {
+        // TODO set power up textures
+        String[] enemyTextures = {
+                "res/iron_fist_power_up_game_item/boxed-fist.png",
+        };
+        public void run() {
+            float x = ((float) Math.random() * 1500);
+            PowerUpList.add(new GameObject(enemyTextures, 50, 50, new Point3f(x, 0, 0),
+                    new Rectangle((int)x, 0, 50, 50)));
+        }
+    }
 
     public Model() {
         // setup game world
         // Player
         String[] textures = {"res/green_fly/up_right.png", "res/green_fly/down_right.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
-                new Rectangle(0, 0, 0, 0));
+                new Rectangle(300, 300, 50, 50));
+
+        // TODO change delay for difficulty
+        enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 1, 1000);
+        powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 1, 50000);
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
@@ -61,15 +100,13 @@ public class Model {
         enemyLogic();
         // Bullets move next
         //bulletLogic();
+        powerUpLogic();
         // interactions between objects
         gameLogic();
-
     }
 
     private void gameLogic() {
-        // this is a way to increment across the array list data structure
-
-
+        // this is a way to increment across the array list data structuresa
         //see if they hit anything
         // using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
         for (GameObject temp : EnemiesList) {
@@ -91,63 +128,6 @@ public class Model {
             getPlayer().setCentre(new Point3f(300, 300, 0));
             getEnemies().clear();
             isHit = false;
-        }
-    }
-
-    private void enemyLogic() {
-        // TODO Auto-generated method stub
-        for (GameObject temp : EnemiesList) {
-            // Move enemies
-
-            temp.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
-            temp.setCollider(new Rectangle((int)temp.getCentre().getX(), (int)temp.getCentre().getY(), temp.getWidth(), temp.getHeight()));
-            //see if they get to the top of the screen ( remember 0 is the top
-            if (temp.getCentre().getX() == 0.0f)  // current boundary need to pass value to model
-            {
-                EnemiesList.remove(temp);
-
-                // enemies win so score decreased
-                Score += 10;
-            }
-        }
-
-        String[] enemyTextures = {
-                "res/Grumpy_bee_enemy_game_character/PNG/1.png",
-                "res/Grumpy_bee_enemy_game_character/PNG/2.png",
-        };
-
-        if (EnemiesList.size() < 3) {
-            float y = ((float) Math.random() * 600);
-            EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533, y, 0),
-                    new Rectangle(1533, (int)y, 80, 80)));
-        }
-
-        if (EnemiesList.get(0).getCentre().getX() == 680) {
-            int i = 0;
-            while (i < 3) {
-                float y = ((float) Math.random() * 600);
-                EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533,
-                        ((float) Math.random() * 550 + 50), 0),
-                        new Rectangle(1533, (int)y, 80, 80)));
-                i++;
-            }
-        }
-    }
-
-    private void bulletLogic() {
-        // TODO Auto-generated method stub
-        // move bullets
-
-        for (GameObject temp : BulletList) {
-            //check to move them
-
-            temp.getCentre().ApplyVector(new Vector3f(0, 1, 0));
-            //see if they hit anything
-
-            //see if they get to the top of the screen ( remember 0 is the top
-            if (temp.getCentre().getY() == 0) {
-                BulletList.remove(temp);
-            }
         }
     }
 
@@ -198,7 +178,6 @@ public class Model {
         }
     }
 
-
     private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
         int x = 0;
         int y = 0;
@@ -216,17 +195,22 @@ public class Model {
             Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
         } else {
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
-            Player.setCollider(new Rectangle((int)Player.getCentre().getX(), (int)Player.getCentre().getY() + 10, 80 - 10, 80 - 15));
+            Player.setCollider(
+                    new Rectangle(
+                            (int)Player.getCentre().getX() + 14,
+                            (int)Player.getCentre().getY() + 22,
+                            45,
+                            45)
+            );
         }
     }
 
     private void detectCollision(Point3f playerLocation) {
-        int width = getPlayer().getWidth();
-        int height = getPlayer().getHeight();
+        // TODO refactor to check player collider properly
         int x = (int) playerLocation.getX();
         int y = (int) playerLocation.getY();
 
-        Rectangle playerRect = new Rectangle(x, y + 10, width - 10, height - 15);
+        Rectangle playerRect = new Rectangle(x + 14, y + 22, 45, 45);
 
         getPlayer().setCollided(playerRect.intersects(groundCollider));
     }
@@ -254,6 +238,66 @@ public class Model {
         movementLogic(checkForPlayerCollision, (int) yVelocity, false);
     }
 
+    private void enemyLogic() {
+        // TODO Auto-generated method stub
+        for (GameObject temp : EnemiesList) {
+            // Move enemies
+            temp.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
+            temp.setCollider(
+                    new Rectangle(
+                            (int)temp.getCentre().getX() + 20,
+                            (int)temp.getCentre().getY() + 20,
+                            40,
+                            40)
+            );
+            //see if they get to the top of the screen ( remember 0 is the top
+            if (temp.getCentre().getX() == 0.0f)  // current boundary need to pass value to model
+            {
+                EnemiesList.remove(temp);
+                // enemies win so score decreased
+                Score += 10;
+            }
+        }
+    }
+
+    private void powerUpLogic(){
+        // Move enemies
+        for (GameObject temp : PowerUpList) {
+            temp.getCentre().ApplyVector(new Vector3f(0, -1, 0));
+            temp.setCollider(
+                    new Rectangle(
+                            (int) temp.getCentre().getX(),
+                            (int) temp.getCentre().getY(),
+                            temp.getWidth(),
+                            temp.getHeight())
+            );
+            //see if they get to the top of the screen ( remember 0 is the top
+            if (temp.getCentre().getY() == 665.0f)  // current boundary need to pass value to model
+            {
+                PowerUpList.remove(temp);
+                // enemies win so score decreased
+                // Score += 10;
+            }
+        }
+    }
+
+    private void bulletLogic() {
+        // TODO Auto-generated method stub
+        // move bullets
+
+        for (GameObject temp : BulletList) {
+            //check to move them
+
+            temp.getCentre().ApplyVector(new Vector3f(0, 1, 0));
+            //see if they hit anything
+
+            //see if they get to the top of the screen ( remember 0 is the top
+            if (temp.getCentre().getY() == 0) {
+                BulletList.remove(temp);
+            }
+        }
+    }
+
     private void CreateBullet() {
         //BulletList.add(new GameObject("res/bullet.png", 32, 64, new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f)));
     }
@@ -268,6 +312,10 @@ public class Model {
 
     public CopyOnWriteArrayList<GameObject> getBullets() {
         return BulletList;
+    }
+
+    public CopyOnWriteArrayList<GameObject> getPowerUpList() {
+        return PowerUpList;
     }
 
     public int getScore() {
