@@ -110,17 +110,42 @@ public class Viewer extends JPanel {
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
         File TextureToLoad;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+
+        int imageWidth = 0;
+        int imageHeight = 0;
+
+        if (texture[0].contains("Grumpy_bee")) {
+            imageWidth = 456;
+            imageHeight = 345;
+        } else if (texture[0].contains("rocket")) {
+            imageWidth = 990;
+            imageHeight = 640;
+        } else if (texture[0].contains("spider")) {
+            imageWidth = 639;
+            imageHeight = 532;
+        } else if (texture[0].contains("ufo_alien")) {
+            imageWidth = 748;
+            imageHeight = 354;
+        } else if (texture[0].contains("skull_ufo_boss")) {
+            imageWidth = 1584;
+            imageHeight = 1071;
+        }
+
         try {
             int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
-            if (currentPositionInAnimation % 2 == 0) {
-                TextureToLoad = new File(texture[0]);
+            if (texture.length > 1) {
+                if (currentPositionInAnimation % 2 == 0) {
+                    TextureToLoad = new File(texture[0]);
+                } else {
+                    TextureToLoad = new File(texture[1]);
+                }
             } else {
-                TextureToLoad = new File(texture[1]);
+                TextureToLoad = new File(texture[0]);
             }
             Image myImage = ImageIO.read(TextureToLoad);
             //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, 456, 365, null);
+            g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, imageWidth, imageHeight, null);
             g.setColor(Color.red);
             g.drawRect(x + 20, y + 20, 40, 40);
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import util.Settings;
 import util.UnitTests;
 
 /*
@@ -39,8 +40,10 @@ SOFTWARE.
 
 public class MainWindow {
     private static JFrame frame = new JFrame("Shoo Fly"); // Change to the name of your game
-    private static Model gameworld = new Model();
+    private static Settings settings = new Settings();
+    private static Model gameworld = new Model(settings);
     private static Viewer canvas = new Viewer(gameworld);
+    private static OptionsView optionsView = new OptionsView();
     private KeyListener Controller = new Controller();
     private MouseListener MouseController = new MouseController();
     private MouseMotionListener MouseMotionController = new MouseMotionController();
@@ -55,7 +58,7 @@ public class MainWindow {
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.add(canvas);
-        canvas.setBounds(0, 0, 1836, 1024); // 1536
+        canvas.setBounds(0, 0, 1536, 798); // 1536
         canvas.setBackground(new Color(255, 255, 255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
         canvas.setVisible(false);   // this will become visible after you press the key.
 
@@ -70,28 +73,40 @@ public class MainWindow {
                 canvas.addMouseListener(MouseController); // add mouse controller
                 canvas.addMouseMotionListener(MouseMotionController); // add motion controller
                 canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
+                settings.setDifficulty(optionsView.getDifficulty());
+                System.out.println(optionsView.getDifficulty());
+                gameworld.initSettings();
+                gameworld.initTimers();
                 startGame = true;
             }
         });
-        startMenuButton.setBounds(400, 500, 200, 40);
-
+        startMenuButton.setBounds(frame.getBounds().width/2, frame.getBounds().height/2, 200, 40);
+        JButton optionsButton = new JButton("Options");  // start button
+        optionsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                optionsView.createAndShowOptions();
+            }
+        });
+        optionsButton.setBounds(frame.getBounds().width/2, frame.getBounds().height/2 + 40, 200, 40);
         //loading background image
-        File BackroundToLoad = new File("res/green_fly/down_left.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File BackroundToLoad = new File("res/Full-Background.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-            BackgroundImageForStartMenu.setBounds(0, 0, 1024, 1024);
+            BackgroundImageForStartMenu.setBounds(0, 0, 1536, 798);
             frame.add(BackgroundImageForStartMenu);
         } catch (IOException e) {
             e.printStackTrace();
         }
         frame.add(startMenuButton);
+        frame.add(optionsButton);
         frame.setVisible(true);
     }
 
     public static void main(String[] args) {
         MainWindow hello = new MainWindow();  //sets up environment
-        gameworld.initTimers();
+
         while (true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple
         {
             //swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it

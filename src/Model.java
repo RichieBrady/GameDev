@@ -1,12 +1,11 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import util.GameObject;
-import util.Point3f;
-import util.PowerUpObject;
-import util.Vector3f;
+import util.*;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -35,83 +34,115 @@ SOFTWARE.
 public class Model {
     // TODO IMPLEMENT: lives, difficulty increase with points, character select, power-ups, high score table, resize frame and sprites for diff screensizes, add random chance for diff powerups
     // TODO FIXES: fly floats above ground, enemy spawn,
-    private GameObject Player;
-    private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
-    private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
-    private CopyOnWriteArrayList<PowerUpObject> PowerUpList = new CopyOnWriteArrayList<PowerUpObject>();
-    private CopyOnWriteArrayList<PowerUpObject> PowerUpCollectedList = new CopyOnWriteArrayList<PowerUpObject>();
-    private CopyOnWriteArrayList<Integer> livesList = new CopyOnWriteArrayList<Integer>();
-
-    private Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
-
+    // TODO add final boss, skull space ship, floats right to left zig zag up and down back and forth. If beat drop loads of sweet buns for sweet points :)
+    private final GameObject Player;
+    private final CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
+    private final CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
+    private final CopyOnWriteArrayList<PowerUpObject> PowerUpList = new CopyOnWriteArrayList<PowerUpObject>();
+    private final CopyOnWriteArrayList<PowerUpObject> PowerUpCollectedList = new CopyOnWriteArrayList<PowerUpObject>();
+    private final CopyOnWriteArrayList<Integer> livesList = new CopyOnWriteArrayList<Integer>();
+    private final HashMap<Integer, String[]> characterSelect = new HashMap<>();
+    private ArrayList<String[]> enemyTextures = new ArrayList<>();
+    private final Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
+    private final Settings settings;
 
     private double yVelocity = 0;
     private double xVelocity = 0;
     private int jump = 0;
     private int powerCounter = 0;
+    private int enemySpeed = 1;
+    private int introduceNewEnemyOnIncrement =0;
 
     private boolean isHit = false;
     private boolean hasPower = false;
     private boolean left = false;
     private boolean right = false;
     private boolean gameOver = false;
-    private boolean initTimers = false;
 
+    private final Timer enemySpawnTimer = new Timer();
+    private final TimerTask enemySpawnTask = new EnemySpawnTask();
 
-    private Timer enemySpawnTimer = new Timer();
-    private TimerTask enemySpawnTask = new EnemySpawnTask();
-
-    private Timer powerUpSpawnTimer = new Timer();
-    private TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
+    private final Timer powerUpSpawnTimer = new Timer();
+    private final TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
 
     private int Score = 0;
 
     class EnemySpawnTask extends TimerTask {
-        String[] enemyTextures = {
-                "res/Grumpy_bee_enemy_game_character/PNG/1.png",
-                "res/Grumpy_bee_enemy_game_character/PNG/2.png",
-        };
         public void run() {
+            if (getScore() <= 500) {
+                if (getScore() == 200) {
+                    System.out.println("200 size before removing: " + enemyTextures.size());
+                    enemyTextures.remove(0);
+                    System.out.println("200 size before removing: " + enemyTextures.size());
+                } else if (getScore() == 300) {
+                    enemyTextures.remove(0);
+                    System.out.println("300 size before removing: " + enemyTextures.size());
+                } else if (getScore() == 400) {
+                    enemyTextures.remove(0);
+                    System.out.println("400 size before removing: " + enemyTextures.size());
+                } else if (getScore() == 500) {
+                    enemyTextures.remove(0);
+                    System.out.println("300 size before removing: " + enemyTextures.size());
+                }
+            }
             float y = ((float) Math.random() * 600);
-            EnemiesList.add(new GameObject(enemyTextures, 80, 80, new Point3f(1533, y, 0),
-                    new Rectangle(1533, (int)y, 50, 50)));
+            // int index = (int) (Math.random() * ((introduceNewEnemyOnIncrement) + 1));
+            EnemiesList.add(new GameObject(enemyTextures.get(0), 80, 80, new Point3f(1533, y, 0),
+                    new Rectangle(1533, (int) y, 50, 50)));
         }
     }
 
     class PowerUpSpawnTask extends TimerTask {
-        // TODO set power up textures
+        // TODO add lives , figure out what shield power up does, add bullet, add proper power up effects
         String[] powerTextures = {
-                "res/iron_fist_power_up_game_item/boxed-fist.png",
-                "res/sweet_tooth_cake_game_item/sweet_tooth_cake.png",
+                "res/iron_fist/boxed-fist.png",
+                "res/sweet_cake/sweet_cake.png",
                 "res/shield_game_item/shield.png",
-                "res/poison_bottle_game_item/poison_bottle.png",
+                "res/poison/poison_bottle.png",
         };
+
         // set random int
         public void run() {
             float x = ((float) Math.random() * 1500);
-            int index = (int)(Math.random() * ((3) + 1));
+            int index = (int) (Math.random() * ((3) + 1));
             PowerUpList.add(new PowerUpObject(powerTextures[index], x, index));
         }
     }
 
-    public Model() {
+    public Model(Settings settings) {
         // setup game world
         // Player
+        this.settings = settings;
+        // TODO implement character select in menu and figure out logic to implement change of direction
+        characterSelect.put(1, new String[]{"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
+        characterSelect.put(2, new String[]{"res/goggle_eyes_bee/up_right.png", "res/goggle_eyes_bee/down_right.png"});
+        characterSelect.put(3, new String[]{"res/red_bee/red_up_right.png", "res/red_bee/red_down_right.png"});
         String[] textures = {"res/green_fly/up_right.png", "res/green_fly/down_right.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
                 new Rectangle(300, 300, 50, 50));
-        livesList.add(1);
-        livesList.add(1);
-        livesList.add(1);
+    }
+    public void initTimers() {
+        enemyTextures.add(new String[]{"res/Grumpy_bee/1.png", "res/Grumpy_bee/2.png"});
+        enemyTextures.add(new String[]{"res/rocket/left1.png", "res/rocket/left2.png"});
+        enemyTextures.add(new String[]{"res/spider/orange-spider.png"}); // TODO add seperate spawn algo for this i.e power up method
+        enemyTextures.add(new String[]{"res/ufo_alien/ufo_enemy.png"});
+        enemyTextures.add(new String[]{"res/skull_ufo_boss/skull_left.png", "res/skull_ufo_boss/skull_right.png"});
+        enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, settings.getEnemySpawnRate());
+        powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 5000, settings.getPowerUpSpawnRate());
     }
 
-    public void initTimers() {
-        enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, 2000);
-        powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 100, 50000);
+    public void initSettings() {
+        settings.getNumberOfLives();
+        for (int i = 0; i < settings.getNumberOfLives(); i++) {
+            System.out.println(i);
+            livesList.add(i);
+        }
+        enemySpeed = settings.getEnemySpeed();
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
     public void gamelogic() {
+
         // Player Logic first
         playerLogic();
         // Enemy Logic next
@@ -145,7 +176,7 @@ public class Model {
                         hasPower = false;
                     }
                 } else {
-                    Score -= 250;
+                    //Score -= 250;
                     if (livesList.size() > 0) {
                         livesList.remove(0);
                     }
@@ -160,11 +191,13 @@ public class Model {
             }
             getPowerUpList().clear();
         }
-        if(isHit){
+        if (isHit) {
             getPlayer().setCentre(new Point3f(300, 300, 0));
             getEnemies().clear();
             isHit = false;
         }
+
+
         //            for (GameObject Bullet : BulletList) {
 //                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
 //                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
@@ -212,6 +245,14 @@ public class Model {
             MouseController.setMouseClicked(false);
         }
 
+        if (Controller.getInstance().isKeySpacePressed()) {
+            if (jump >= 0) {
+                yVelocity = 15;
+                jump = 8;
+            }
+            Controller.getInstance().setKeySpacePressed(false);
+        }
+
         if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
             getPlayer().setTextureLocations(new String[]{"res/green_fly/up_left.png", "res/green_fly/down_left.png"});
         } else {
@@ -233,13 +274,21 @@ public class Model {
         detectCollision(checkForPlayerCollision);
 
         if (getPlayer().isCollided()) {
-            Player.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+            Score -= 250;
+            if (livesList.size() > 0) {
+                livesList.remove(0);
+            } else {
+                gameOver = true;
+            }
+            getPlayer().setCentre(new Point3f(300, 300, 0));
+            getEnemies().clear();
+            yVelocity = 5;
         } else {
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
             Player.setCollider(
                     new Rectangle(
-                            (int)Player.getCentre().getX() + 14,
-                            (int)Player.getCentre().getY() + 22,
+                            (int) Player.getCentre().getX() + 14,
+                            (int) Player.getCentre().getY() + 22,
                             45,
                             45)
             );
@@ -283,11 +332,11 @@ public class Model {
         // TODO Auto-generated method stub
         for (GameObject temp : EnemiesList) {
             // Move enemies
-            temp.getCentre().ApplyVector(new Vector3f(-3, 0, 0));
+            temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, 0, 0));
             temp.setCollider(
                     new Rectangle(
-                            (int)temp.getCentre().getX() + 20,
-                            (int)temp.getCentre().getY() + 20,
+                            (int) temp.getCentre().getX() + 20,
+                            (int) temp.getCentre().getY() + 20,
                             40,
                             40)
             );
@@ -301,7 +350,7 @@ public class Model {
         }
     }
 
-    private void powerUpLogic(){
+    private void powerUpLogic() {
         // Move enemies
         for (GameObject temp : PowerUpList) {
             temp.getCentre().ApplyVector(new Vector3f(0, -1, 0));
@@ -379,14 +428,6 @@ public class Model {
 
     public boolean isHasPower() {
         return hasPower;
-    }
-
-    public boolean isInitTimers() {
-        return initTimers;
-    }
-
-    public void setInitTimers(boolean initTimers) {
-        this.initTimers = initTimers;
     }
 }
 
