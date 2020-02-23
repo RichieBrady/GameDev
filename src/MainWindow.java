@@ -91,6 +91,7 @@ public class MainWindow {
 
     public static void main(String[] args) {
         MainWindow hello = new MainWindow();  //sets up environment
+        gameworld.initTimers();
         while (true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple
         {
             //swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it
@@ -116,11 +117,16 @@ public class MainWindow {
         // controller input  will happen on its own thread
         // So no need to call it explicitly
 
+        // TODO if !gameOver else show gameover screen
         // model update
         gameworld.gamelogic();
         // view update
 
         canvas.updateview();
+
+//        if (!gameworld.isInitTimers()) {
+//
+//        }
 
         // Both these calls could be setup as  a thread but we want to simplify the game logic for you.
         //score update

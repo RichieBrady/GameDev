@@ -35,8 +35,7 @@ SOFTWARE.
 public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
     private boolean wallTilesCollected = false;
-    Model gameworld = new Model();
-    int enemyAnimIndex = 0;
+    Model gameworld;
 
     public Viewer(Model World) {
         this.gameworld = World;
@@ -67,7 +66,6 @@ public class Viewer extends JPanel {
 
         super.paintComponent(g);
         CurrentAnimationTime++; // runs animation time step
-
         //Draw background
         drawBackground(g);
 
@@ -93,17 +91,21 @@ public class Viewer extends JPanel {
 
         // //Draw Enemies
         gameworld.getEnemies().forEach((temp) ->
-        {
-            drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
-
-        });
+                drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g));
 
         // Draw power ups
-        gameworld.getPowerUpList().forEach((temp) ->
-        {
-            drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+        gameworld.getPowerUpList().forEach((temp) -> drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTextureLocation(), temp.getImageIndex(), g));
 
-        });
+        int xAxis = 30;
+        int yAxis = 720;
+        for (int i : gameworld.getLivesList()) {
+            drawLives(xAxis, yAxis, g);
+            xAxis += 10;
+        }
+
+        if (gameworld.isHasPower()) {
+            gameworld.getPowerUpCollectedList().forEach((temp) -> drawHasPowerUp(temp.getTextureLocation(), temp.getImageIndex(), g));
+        }
     }
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
@@ -155,14 +157,70 @@ public class Viewer extends JPanel {
         }
     }
 
-    private void drawPowerUps(int x, int y, int width, int height, String[] texture, Graphics g) {
-        File TextureToLoad = new File(texture[0]);;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+    private void drawLives(int x, int y, Graphics g) {
+        File TextureToLoad = new File("res/life/life.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
-
             Image myImage = ImageIO.read(TextureToLoad);
-            //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
-            //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 320, 319, null);
+            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 260, 207, null);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void drawHasPowerUp(String texture, int imageIndex, Graphics g) {
+        File TextureToLoad = new File(texture); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        // TODO add image index here set size
+        int imageWidth = 0;
+        int imageHeight = 0;
+
+        if (imageIndex == 0) {
+            imageWidth = 320;
+            imageHeight = 319;
+        } else if (imageIndex == 1) {
+            imageWidth = 696;
+            imageHeight = 558;
+        } else if (imageIndex == 2) {
+            imageWidth = 522;
+            imageHeight = 529;
+        } else if (imageIndex == 3) {
+            imageWidth = 459;
+            imageHeight = 556;
+        }
+
+        try {
+            Image myImage = ImageIO.read(TextureToLoad);
+
+            g.drawImage(myImage, 25, 20, 55, 50, 0, 0, imageWidth, imageHeight, null);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void drawPowerUps(int x, int y, int width, int height, String texture, int imageIndex, Graphics g) {
+        File TextureToLoad = new File(texture);;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        int imageWidth = 0;
+        int imageHeight = 0;
+
+        if (imageIndex == 0) {
+            imageWidth = 320;
+            imageHeight = 319;
+        } else if (imageIndex == 1) {
+            imageWidth = 696;
+            imageHeight = 558;
+        } else if (imageIndex == 2) {
+            imageWidth = 522;
+            imageHeight = 529;
+        } else if (imageIndex == 3) {
+            imageWidth = 459;
+            imageHeight = 556;
+        }
+
+        try {
+            Image myImage = ImageIO.read(TextureToLoad);
+
+            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, imageWidth, imageHeight, null);
             g.setColor(Color.red);
             g.drawRect(x, y, width, height);
         } catch (IOException e) {
@@ -173,12 +231,8 @@ public class Viewer extends JPanel {
 
     private void drawPlayer(int x, int y, int width, int height, String[] texture, Graphics g) {
         //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-        int sprite = 610;
         File TextureToLoad;
         try {
-
-            // The sprite is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
-            // remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
             if (currentPositionInAnimation % 2 == 0) {
                 TextureToLoad = new File(texture[0]);

@@ -5,6 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import util.GameObject;
 import util.Point3f;
+import util.PowerUpObject;
 import util.Vector3f;
 
 /*
@@ -32,21 +33,30 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 public class Model {
-    // TODO IMPLEMENT: lives, difficulty, character select, power-ups, high score table
+    // TODO IMPLEMENT: lives, difficulty increase with points, character select, power-ups, high score table, resize frame and sprites for diff screensizes, add random chance for diff powerups
     // TODO FIXES: fly floats above ground, enemy spawn,
     private GameObject Player;
     private CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
-    private CopyOnWriteArrayList<GameObject> PowerUpList = new CopyOnWriteArrayList<GameObject>();
+    private CopyOnWriteArrayList<PowerUpObject> PowerUpList = new CopyOnWriteArrayList<PowerUpObject>();
+    private CopyOnWriteArrayList<PowerUpObject> PowerUpCollectedList = new CopyOnWriteArrayList<PowerUpObject>();
+    private CopyOnWriteArrayList<Integer> livesList = new CopyOnWriteArrayList<Integer>();
 
     private Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
 
-    private boolean left = false;
-    private boolean right = false;
+
     private double yVelocity = 0;
     private double xVelocity = 0;
     private int jump = 0;
+    private int powerCounter = 0;
+
     private boolean isHit = false;
+    private boolean hasPower = false;
+    private boolean left = false;
+    private boolean right = false;
+    private boolean gameOver = false;
+    private boolean initTimers = false;
+
 
     private Timer enemySpawnTimer = new Timer();
     private TimerTask enemySpawnTask = new EnemySpawnTask();
@@ -70,13 +80,17 @@ public class Model {
 
     class PowerUpSpawnTask extends TimerTask {
         // TODO set power up textures
-        String[] enemyTextures = {
+        String[] powerTextures = {
                 "res/iron_fist_power_up_game_item/boxed-fist.png",
+                "res/sweet_tooth_cake_game_item/sweet_tooth_cake.png",
+                "res/shield_game_item/shield.png",
+                "res/poison_bottle_game_item/poison_bottle.png",
         };
+        // set random int
         public void run() {
             float x = ((float) Math.random() * 1500);
-            PowerUpList.add(new GameObject(enemyTextures, 50, 50, new Point3f(x, 0, 0),
-                    new Rectangle((int)x, 0, 50, 50)));
+            int index = (int)(Math.random() * ((3) + 1));
+            PowerUpList.add(new PowerUpObject(powerTextures[index], x, index));
         }
     }
 
@@ -86,10 +100,14 @@ public class Model {
         String[] textures = {"res/green_fly/up_right.png", "res/green_fly/down_right.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
                 new Rectangle(300, 300, 50, 50));
+        livesList.add(1);
+        livesList.add(1);
+        livesList.add(1);
+    }
 
-        // TODO change delay for difficulty
-        enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 1, 1000);
-        powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 1, 50000);
+    public void initTimers() {
+        enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, 2000);
+        powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 100, 50000);
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
@@ -106,16 +124,48 @@ public class Model {
     }
 
     private void gameLogic() {
-        // this is a way to increment across the array list data structuresa
+        // this is a way to increment across the array list data structures
         //see if they hit anything
-        // using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
+        // using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
+        for (GameObject powerUp : PowerUpList) {
+            if (powerUp.getCollider().intersects(Player.getCollider())) {
+                hasPower = true;
+            }
+        }
         for (GameObject temp : EnemiesList) {
             if (temp.getCollider().intersects(Player.getCollider())) {
-                Score -= 25;
-                isHit = true;
-                break;
+                if (hasPower) {
+                    EnemiesList.remove(temp);
+                    Score += 50;
+                    if (powerCounter < 5) {
+                        powerCounter++;
+                    } else {
+                        powerCounter = 0;
+                        getPowerUpCollectedList().clear();
+                        hasPower = false;
+                    }
+                } else {
+                    Score -= 250;
+                    if (livesList.size() > 0) {
+                        livesList.remove(0);
+                    }
+                    isHit = true;
+                    break;
+                }
             }
-//            for (GameObject Bullet : BulletList) {
+        }
+        if (hasPower) {
+            if (getPowerUpList().size() > 0 && getPowerUpCollectedList().size() == 0) {
+                getPowerUpCollectedList().add(getPowerUpList().get(0));
+            }
+            getPowerUpList().clear();
+        }
+        if(isHit){
+            getPlayer().setCentre(new Point3f(300, 300, 0));
+            getEnemies().clear();
+            isHit = false;
+        }
+        //            for (GameObject Bullet : BulletList) {
 //                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
 //                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
 //                    EnemiesList.remove(temp);
@@ -123,12 +173,6 @@ public class Model {
 //                    Score++;
 //                }
 //            }
-        }
-        if(isHit){
-            getPlayer().setCentre(new Point3f(300, 300, 0));
-            getEnemies().clear();
-            isHit = false;
-        }
     }
 
     private void playerLogic() {
@@ -137,9 +181,6 @@ public class Model {
 
         //check for movement and if you fired a bullet
 
-        // temporary point that takes player current position and applies new vector which is checked in movementLogic()
-        // for wall collision. If collision...
-        xVelocity = 2;
         if (Controller.getInstance().isKeyWPressed()) {
 
         }
@@ -148,21 +189,21 @@ public class Model {
             // movementLogic(checkForPlayerCollision, -distanceToTravel, false);
         }
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
-        // control x left
+
+        xVelocity = 2;
         if (Controller.getInstance().isKeyAPressed()) {
 
             setLeft(true);
             movementLogic(checkForPlayerCollision, (int) -xVelocity, true);
         }
 
-        // control x right
         if (Controller.getInstance().isKeyDPressed()) {
 
             setRight(true);
             movementLogic(checkForPlayerCollision, (int) xVelocity, true);
         }
 
-        // control y (click for up/let go for down)
+        // control y (click for up/gravity down)
         if (MouseController.isMouseClicked()) {
             if (jump >= 0) {
                 yVelocity = 15;
@@ -242,7 +283,7 @@ public class Model {
         // TODO Auto-generated method stub
         for (GameObject temp : EnemiesList) {
             // Move enemies
-            temp.getCentre().ApplyVector(new Vector3f(-2, 0, 0));
+            temp.getCentre().ApplyVector(new Vector3f(-3, 0, 0));
             temp.setCollider(
                     new Rectangle(
                             (int)temp.getCentre().getX() + 20,
@@ -275,8 +316,6 @@ public class Model {
             if (temp.getCentre().getY() == 665.0f)  // current boundary need to pass value to model
             {
                 PowerUpList.remove(temp);
-                // enemies win so score decreased
-                // Score += 10;
             }
         }
     }
@@ -314,8 +353,16 @@ public class Model {
         return BulletList;
     }
 
-    public CopyOnWriteArrayList<GameObject> getPowerUpList() {
+    public CopyOnWriteArrayList<PowerUpObject> getPowerUpList() {
         return PowerUpList;
+    }
+
+    public CopyOnWriteArrayList<PowerUpObject> getPowerUpCollectedList() {
+        return PowerUpCollectedList;
+    }
+
+    public CopyOnWriteArrayList<Integer> getLivesList() {
+        return livesList;
     }
 
     public int getScore() {
@@ -328,6 +375,18 @@ public class Model {
 
     public void setRight(boolean right) {
         this.right = right;
+    }
+
+    public boolean isHasPower() {
+        return hasPower;
+    }
+
+    public boolean isInitTimers() {
+        return initTimers;
+    }
+
+    public void setInitTimers(boolean initTimers) {
+        this.initTimers = initTimers;
     }
 }
 
