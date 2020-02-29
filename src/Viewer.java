@@ -110,25 +110,24 @@ public class Viewer extends JPanel {
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
         File TextureToLoad;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-
         int imageWidth = 0;
         int imageHeight = 0;
 
         if (texture[0].contains("Grumpy_bee")) {
-            imageWidth = 456;
-            imageHeight = 345;
+            imageWidth = 80;
+            imageHeight = 61;
         } else if (texture[0].contains("rocket")) {
-            imageWidth = 990;
-            imageHeight = 640;
+            imageWidth = 80;
+            imageHeight = 52;
         } else if (texture[0].contains("spider")) {
-            imageWidth = 639;
-            imageHeight = 532;
+            imageWidth = 100;
+            imageHeight = 83;
         } else if (texture[0].contains("ufo_alien")) {
-            imageWidth = 748;
-            imageHeight = 354;
+            imageWidth = 100;
+            imageHeight = 47;
         } else if (texture[0].contains("skull_ufo_boss")) {
-            imageWidth = 1584;
-            imageHeight = 1071;
+            imageWidth = 150;
+            imageHeight = 101;
         }
 
         try {
@@ -145,7 +144,8 @@ public class Viewer extends JPanel {
             Image myImage = ImageIO.read(TextureToLoad);
             //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-            g.drawImage(myImage, x, y, x + 80, y + 80, 0, 0, imageWidth, imageHeight, null);
+            // TODO redraw enemy rectangles
+            g.drawImage(myImage, x, y, x + imageWidth, y + imageHeight, 0, 0, imageWidth, imageHeight, null);
             g.setColor(Color.red);
             g.drawRect(x + 20, y + 20, 40, 40);
         } catch (IOException e) {
@@ -265,7 +265,7 @@ public class Viewer extends JPanel {
                 TextureToLoad = new File(texture[1]);
             }
             Image myImage = ImageIO.read(TextureToLoad);
-            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 610, 511, null);
+            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 80, 67, null);
             g.setColor(Color.red);
             g.drawRect(
                     (int)gameworld.getPlayer().getCollider().getX(),

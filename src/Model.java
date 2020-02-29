@@ -7,6 +7,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import util.*;
 
+import static java.lang.Math.floor;
+
 /*
  * Created by Abraham Campbell on 15/01/2020.
  *   Copyright (c) 2020  Abraham Campbell
@@ -51,13 +53,19 @@ public class Model {
     private int jump = 0;
     private int powerCounter = 0;
     private int enemySpeed = 1;
-    private int introduceNewEnemyOnIncrement =0;
+    private int introduceNewEnemyOnIncrement = 0;
 
     private boolean isHit = false;
     private boolean hasPower = false;
     private boolean left = false;
     private boolean right = false;
     private boolean gameOver = false;
+
+    private boolean rocketMode = false;
+    private boolean spiderMode = false;
+    private boolean ufoMode = false;
+    private float ufoModeY = 1;
+    private boolean bossMode = false;
 
     private final Timer enemySpawnTimer = new Timer();
     private final TimerTask enemySpawnTask = new EnemySpawnTask();
@@ -66,29 +74,42 @@ public class Model {
     private final TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
 
     private int Score = 0;
+    private int enemyIncrementer = 0;
 
     class EnemySpawnTask extends TimerTask {
         public void run() {
-            if (getScore() <= 500) {
-                if (getScore() == 200) {
-                    System.out.println("200 size before removing: " + enemyTextures.size());
-                    enemyTextures.remove(0);
-                    System.out.println("200 size before removing: " + enemyTextures.size());
-                } else if (getScore() == 300) {
-                    enemyTextures.remove(0);
-                    System.out.println("300 size before removing: " + enemyTextures.size());
-                } else if (getScore() == 400) {
-                    enemyTextures.remove(0);
-                    System.out.println("400 size before removing: " + enemyTextures.size());
-                } else if (getScore() == 500) {
-                    enemyTextures.remove(0);
-                    System.out.println("300 size before removing: " + enemyTextures.size());
+            if (getScore() <= 600) {
+                if ((getScore() >= 200 && getScore() <= 250) && enemyIncrementer == 0) {
+                    enemyIncrementer = 1;
+                    rocketMode = true;
+                } else if ((getScore() >= 300 && getScore() <= 350) && enemyIncrementer == 1) {
+                    enemyIncrementer = 2;
+                    rocketMode = false;
+                    spiderMode = true;
+                    getEnemies().clear();
+                } else if ((getScore() >= 400 && getScore() <= 450) && enemyIncrementer == 2) {
+                    enemyIncrementer = 3;
+                    spiderMode = false;
+                    ufoMode = true;
+                    getEnemies().clear();
+                } else if ((getScore() >= 500 && getScore() <= 550) && enemyIncrementer == 3) {
+                    enemyIncrementer = 4;
+                    ufoMode = false;
+                    bossMode = true;
                 }
             }
-            float y = ((float) Math.random() * 600);
+
             // int index = (int) (Math.random() * ((introduceNewEnemyOnIncrement) + 1));
-            EnemiesList.add(new GameObject(enemyTextures.get(0), 80, 80, new Point3f(1533, y, 0),
-                    new Rectangle(1533, (int) y, 50, 50)));
+            // TODO add if spider spawn form 0y similar to powerups
+            if (spiderMode) {
+                float x = ((float) Math.random() * 1533);
+                EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(x, 0, 0),
+                        new Rectangle((int) x, 0, 50, 50)));
+            } else {
+                float y = ((float) Math.random() * 600);
+                EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1533, y, 0),
+                        new Rectangle(1533, (int) y, 50, 50)));
+            }
         }
     }
 
@@ -114,19 +135,20 @@ public class Model {
         // Player
         this.settings = settings;
         // TODO implement character select in menu and figure out logic to implement change of direction
-        characterSelect.put(1, new String[]{"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
-        characterSelect.put(2, new String[]{"res/goggle_eyes_bee/up_right.png", "res/goggle_eyes_bee/down_right.png"});
-        characterSelect.put(3, new String[]{"res/red_bee/red_up_right.png", "res/red_bee/red_down_right.png"});
-        String[] textures = {"res/green_fly/up_right.png", "res/green_fly/down_right.png"};
+        characterSelect.put(1, new String[]{"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"});
+        characterSelect.put(2, new String[]{"res/goggle_eyes_bee/up_right_small.png", "res/goggle_eyes_bee/down_right_small.png"});
+        characterSelect.put(3, new String[]{"res/red_bee/red_up_right_small.png", "res/red_bee/red_down_right_small.png"});
+        String[] textures = {"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
                 new Rectangle(300, 300, 50, 50));
     }
+
     public void initTimers() {
-        enemyTextures.add(new String[]{"res/Grumpy_bee/1.png", "res/Grumpy_bee/2.png"});
-        enemyTextures.add(new String[]{"res/rocket/left1.png", "res/rocket/left2.png"});
-        enemyTextures.add(new String[]{"res/spider/orange-spider.png"}); // TODO add seperate spawn algo for this i.e power up method
-        enemyTextures.add(new String[]{"res/ufo_alien/ufo_enemy.png"});
-        enemyTextures.add(new String[]{"res/skull_ufo_boss/skull_left.png", "res/skull_ufo_boss/skull_right.png"});
+        enemyTextures.add(new String[]{"res/Grumpy_bee/1small.png", "res/Grumpy_bee/2small.png"});
+        enemyTextures.add(new String[]{"res/rocket/left1_small.png"});
+        enemyTextures.add(new String[]{"res/spider/orange-spider_small.png"}); // TODO add seperate spawn algo for this i.e power up method
+        enemyTextures.add(new String[]{"res/ufo_alien/ufo_enemy_small.png"});
+        enemyTextures.add(new String[]{"res/skull_ufo_boss/skull_left_small.png"});
         enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, settings.getEnemySpawnRate());
         powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 5000, settings.getPowerUpSpawnRate());
     }
@@ -134,7 +156,6 @@ public class Model {
     public void initSettings() {
         settings.getNumberOfLives();
         for (int i = 0; i < settings.getNumberOfLives(); i++) {
-            System.out.println(i);
             livesList.add(i);
         }
         enemySpeed = settings.getEnemySpeed();
@@ -254,9 +275,9 @@ public class Model {
         }
 
         if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
-            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_left.png", "res/green_fly/down_left.png"});
+            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_left_small.png", "res/green_fly/down_left_small.png"});
         } else {
-            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_right.png", "res/green_fly/down_right.png"});
+            getPlayer().setTextureLocations(new String[]{"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"});
         }
     }
 
@@ -330,9 +351,28 @@ public class Model {
 
     private void enemyLogic() {
         // TODO Auto-generated method stub
+        float boundary = 0.0f;
+        float axisToCheck;
+
         for (GameObject temp : EnemiesList) {
             // Move enemies
-            temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, 0, 0));
+            if (spiderMode) {
+                temp.getCentre().ApplyVector(new Vector3f(0, -enemySpeed, 0));
+                boundary = 666.0f;
+                axisToCheck = temp.getCentre().getY();
+            } else if (ufoMode) {
+                if (temp.getCentre().getY() == 0) {
+                    ufoModeY = -1;
+                } else if (floor(temp.getCentre().getY()) == 628) {
+                    ufoModeY = 1;
+                }
+                System.out.println(temp.getCentre().getY());
+                temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, ufoModeY, 0));
+                axisToCheck = temp.getCentre().getX();
+            } else {
+                temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, 0, 0));
+                axisToCheck = temp.getCentre().getX();
+            }
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 20,
@@ -341,10 +381,9 @@ public class Model {
                             40)
             );
             //see if they get to the top of the screen ( remember 0 is the top
-            if (temp.getCentre().getX() == 0.0f)  // current boundary need to pass value to model
-            {
+            if (axisToCheck == boundary) {
                 EnemiesList.remove(temp);
-                // enemies win so score decreased
+                // enemies lose so score increased
                 Score += 10;
             }
         }
