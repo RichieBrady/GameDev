@@ -224,7 +224,8 @@ public class Viewer extends JPanel {
     }
 
     private void drawPowerUps(int x, int y, int width, int height, String texture, int imageIndex, Graphics g) {
-        File TextureToLoad = new File(texture);;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File TextureToLoad = new File(texture);
+        ;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         int imageWidth = 0;
         int imageHeight = 0;
 
@@ -268,10 +269,10 @@ public class Viewer extends JPanel {
             g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 80, 67, null);
             g.setColor(Color.red);
             g.drawRect(
-                    (int)gameworld.getPlayer().getCollider().getX(),
-                    (int)gameworld.getPlayer().getCollider().getY(),
-                    (int)gameworld.getPlayer().getCollider().getWidth(),
-                    (int)gameworld.getPlayer().getCollider().getHeight()
+                    (int) gameworld.getPlayer().getCollider().getX(),
+                    (int) gameworld.getPlayer().getCollider().getY(),
+                    (int) gameworld.getPlayer().getCollider().getWidth(),
+                    (int) gameworld.getPlayer().getCollider().getHeight()
             );
         } catch (IOException e) {
             // TODO Auto-generated catch block

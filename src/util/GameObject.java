@@ -31,6 +31,8 @@ public class GameObject {
     private Point3f centre = new Point3f(0, 0, 0); // Centre of object, using 3D as objects may be scaled
     private int width = 10;
     private int height = 10;
+    private float ufoModeY = 1;
+    private float ufoModeX = 1;
     private boolean hasTextured = false;
     private boolean collided = false;
     private String[] textureLocations;
@@ -48,6 +50,16 @@ public class GameObject {
         this.height = height;
         this.centre = centre;
         this.collider = collider;
+    }
+
+    public GameObject(String[] textureLocations, int width, int height, Point3f centre, Rectangle collider, int ufoModeY) {
+        hasTextured = true;
+        this.textureLocations = textureLocations;
+        this.width = width;
+        this.height = height;
+        this.centre = centre;
+        this.collider = collider;
+        this.ufoModeY = ufoModeY;
     }
 
     public Point3f getCentre() {
@@ -73,6 +85,22 @@ public class GameObject {
         }
 
         return blanktexture;
+    }
+
+    public float getUfoModeY() {
+        return ufoModeY;
+    }
+
+    public void setUfoModeY(float ufoModeY) {
+        this.ufoModeY = ufoModeY;
+    }
+
+    public float getUfoModeX() {
+        return ufoModeX;
+    }
+
+    public void setUfoModeX(float ufoModeX) {
+        this.ufoModeX = ufoModeX;
     }
 
     public void setTextureLocations(String[] textureLocations) {

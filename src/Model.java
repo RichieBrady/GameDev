@@ -44,7 +44,7 @@ public class Model {
     private final CopyOnWriteArrayList<PowerUpObject> PowerUpCollectedList = new CopyOnWriteArrayList<PowerUpObject>();
     private final CopyOnWriteArrayList<Integer> livesList = new CopyOnWriteArrayList<Integer>();
     private final HashMap<Integer, String[]> characterSelect = new HashMap<>();
-    private ArrayList<String[]> enemyTextures = new ArrayList<>();
+    private final ArrayList<String[]> enemyTextures = new ArrayList<>();
     private final Rectangle groundCollider = new Rectangle(0, 665, 1536, 39);
     private final Settings settings;
 
@@ -53,7 +53,6 @@ public class Model {
     private int jump = 0;
     private int powerCounter = 0;
     private int enemySpeed = 1;
-    private int introduceNewEnemyOnIncrement = 0;
 
     private boolean isHit = false;
     private boolean hasPower = false;
@@ -64,8 +63,8 @@ public class Model {
     private boolean rocketMode = false;
     private boolean spiderMode = false;
     private boolean ufoMode = false;
-    private float ufoModeY = 1;
     private boolean bossMode = false;
+    private boolean bossSpawned = false;
 
     private final Timer enemySpawnTimer = new Timer();
     private final TimerTask enemySpawnTask = new EnemySpawnTask();
@@ -77,6 +76,8 @@ public class Model {
     private int enemyIncrementer = 0;
 
     class EnemySpawnTask extends TimerTask {
+        int[] ufoFlyMode = {1, -1};
+
         public void run() {
             if (getScore() <= 600) {
                 if ((getScore() >= 200 && getScore() <= 250) && enemyIncrementer == 0) {
@@ -98,17 +99,35 @@ public class Model {
                     bossMode = true;
                 }
             }
+            if (!bossMode) {
+                if (spiderMode) {
+                    float x = ((float) Math.random() * 1533);
+                    EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(x, 0, 0),
+                            new Rectangle((int) x, 0, 50, 50)));
+                } else if (ufoMode) {
+                    float y = ((float) Math.random() * 600);
+                    int index = (int) (Math.random() * 2);
+                    System.out.println(index);
+                    EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1533, y, 0),
+                            new Rectangle(1533, (int) y, 50, 50), ufoFlyMode[index]));
+                } else {
+                    float y = ((float) Math.random() * 600);
+                    EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1533, y, 0),
+                            new Rectangle(1533, (int) y, 50, 50)));
+                }
+            }
+            if (!bossSpawned) {
 
-            // int index = (int) (Math.random() * ((introduceNewEnemyOnIncrement) + 1));
-            // TODO add if spider spawn form 0y similar to powerups
-            if (spiderMode) {
-                float x = ((float) Math.random() * 1533);
-                EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(x, 0, 0),
-                        new Rectangle((int) x, 0, 50, 50)));
-            } else {
                 float y = ((float) Math.random() * 600);
+                int index = (int) (Math.random() * 2);
+                System.out.println(index);
+
                 EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1533, y, 0),
-                        new Rectangle(1533, (int) y, 50, 50)));
+                        new Rectangle(1533, (int) y, 50, 50), ufoFlyMode[index]));
+                bossSpawned = true;
+
+                enemySpawnTask.cancel();
+                enemySpawnTimer.cancel();
             }
         }
     }
@@ -197,6 +216,7 @@ public class Model {
                         hasPower = false;
                     }
                 } else {
+                    // TODO test if -250 will effect enemy spawn intervals
                     //Score -= 250;
                     if (livesList.size() > 0) {
                         livesList.remove(0);
@@ -218,7 +238,6 @@ public class Model {
             isHit = false;
         }
 
-
         //            for (GameObject Bullet : BulletList) {
 //                if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
 //                        && Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
@@ -230,7 +249,6 @@ public class Model {
     }
 
     private void playerLogic() {
-
         // smoother animation is possible if we make a target position  // done but may try to change things for students
 
         //check for movement and if you fired a bullet
@@ -357,22 +375,48 @@ public class Model {
         for (GameObject temp : EnemiesList) {
             // Move enemies
             if (spiderMode) {
+
                 temp.getCentre().ApplyVector(new Vector3f(0, -enemySpeed, 0));
                 boundary = 666.0f;
                 axisToCheck = temp.getCentre().getY();
+
             } else if (ufoMode) {
+
                 if (temp.getCentre().getY() == 0) {
-                    ufoModeY = -1;
+                    temp.setUfoModeY(-1);
                 } else if (floor(temp.getCentre().getY()) == 628) {
-                    ufoModeY = 1;
+                    temp.setUfoModeY(1);
                 }
-                System.out.println(temp.getCentre().getY());
-                temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, ufoModeY, 0));
+                temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, temp.getUfoModeY(), 0));
                 axisToCheck = temp.getCentre().getX();
+
+            } else if (rocketMode) {
+
+                int rocketSpeed = enemySpeed + 2;
+                temp.getCentre().ApplyVector(new Vector3f(-rocketSpeed, 0, 0));
+                axisToCheck = temp.getCentre().getX();
+
+            } else if (bossMode) {
+
+                int rocketSpeed = enemySpeed + 2;
+                if (temp.getCentre().getY() == 0) {
+                    temp.setUfoModeY(-1);
+                } else if (floor(temp.getCentre().getY()) == 628) {
+                    temp.setUfoModeY(1);
+                } else if (temp.getCentre().getX() == 0) {
+                    temp.setUfoModeY(-1);
+                } else if (floor(temp.getCentre().getX()) == 628) { // TODO finish change direction
+                    temp.setUfoModeY(1);
+                }
+                temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, temp.getUfoModeY(), 0));
+                axisToCheck = temp.getCentre().getX();
+
             } else {
+
                 temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, 0, 0));
                 axisToCheck = temp.getCentre().getX();
             }
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 20,
@@ -380,12 +424,14 @@ public class Model {
                             40,
                             40)
             );
+
             //see if they get to the top of the screen ( remember 0 is the top
             if (axisToCheck == boundary) {
                 EnemiesList.remove(temp);
                 // enemies lose so score increased
                 Score += 10;
             }
+
         }
     }
 
