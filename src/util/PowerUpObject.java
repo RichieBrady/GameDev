@@ -8,7 +8,7 @@ public class PowerUpObject extends GameObject{
 
     public PowerUpObject(String texture, float x, int imageIndex) {
         super(new String[] {""}, 50, 50, new Point3f(x, 0, 0),
-                new Rectangle((int)x, 0, 50, 50));
+                new Rectangle((int)x + 5, 5, 50 - 10, 50 - 10));
 
         this.textureLocation = texture;
         this.imageIndex = imageIndex;

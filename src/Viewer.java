@@ -112,22 +112,46 @@ public class Viewer extends JPanel {
         File TextureToLoad;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         int imageWidth = 0;
         int imageHeight = 0;
+        int drawRectX = 0;
+        int drawRectY = 0;
+        int drawRectWidth = 0;
+        int drawRectHeight = 0;
 
         if (texture[0].contains("Grumpy_bee")) {
             imageWidth = 80;
             imageHeight = 61;
+            drawRectX = 15;
+            drawRectY = 17;
+            drawRectWidth = 40;
+            drawRectHeight = 30;
         } else if (texture[0].contains("rocket")) {
             imageWidth = 80;
             imageHeight = 52;
+            drawRectX = 15;
+            drawRectY = 17;
+            drawRectWidth = 40;
+            drawRectHeight = 25;
         } else if (texture[0].contains("spider")) {
             imageWidth = 100;
             imageHeight = 83;
+            drawRectX = 24;
+            drawRectY = 20;
+            drawRectWidth = 50;
+            drawRectHeight = 50;
         } else if (texture[0].contains("ufo_alien")) {
             imageWidth = 100;
             imageHeight = 47;
+            drawRectX = 24;
+            drawRectY = 17;
+            drawRectWidth = 50;
+            drawRectHeight = 20;
         } else if (texture[0].contains("skull_ufo_boss")) {
             imageWidth = 150;
             imageHeight = 101;
+            drawRectX = 37;
+            drawRectY = 20;
+            drawRectWidth = 75;
+            drawRectHeight = 80;
         }
 
         try {
@@ -147,7 +171,7 @@ public class Viewer extends JPanel {
             // TODO redraw enemy rectangles
             g.drawImage(myImage, x, y, x + imageWidth, y + imageHeight, 0, 0, imageWidth, imageHeight, null);
             g.setColor(Color.red);
-            g.drawRect(x + 20, y + 20, 40, 40);
+            g.drawRect(x + drawRectX, y + drawRectY, drawRectWidth, drawRectHeight);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -230,17 +254,20 @@ public class Viewer extends JPanel {
         int imageHeight = 0;
 
         if (imageIndex == 0) {
-            imageWidth = 320;
-            imageHeight = 319;
+            imageWidth = 80;
+            imageHeight = 80;
         } else if (imageIndex == 1) {
-            imageWidth = 696;
-            imageHeight = 558;
+            imageWidth = 80;
+            imageHeight = 64;
         } else if (imageIndex == 2) {
-            imageWidth = 522;
-            imageHeight = 529;
+            imageWidth = 80;
+            imageHeight = 81;
         } else if (imageIndex == 3) {
-            imageWidth = 459;
-            imageHeight = 556;
+            imageWidth = 80;
+            imageHeight = 97;
+        } else if (imageIndex == 4) {
+            imageWidth = 60;
+            imageHeight = 59;
         }
 
         try {
@@ -248,7 +275,7 @@ public class Viewer extends JPanel {
 
             g.drawImage(myImage, x, y, x + width, y + height, 0, 0, imageWidth, imageHeight, null);
             g.setColor(Color.red);
-            g.drawRect(x, y, width, height);
+            g.drawRect(x + 5, y + 5, width - 10, height - 10);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -266,7 +293,7 @@ public class Viewer extends JPanel {
                 TextureToLoad = new File(texture[1]);
             }
             Image myImage = ImageIO.read(TextureToLoad);
-            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 80, 67, null);
+            g.drawImage(myImage, x, y, x + 80, y + 67, 0, 0, 80, 67, null);
             g.setColor(Color.red);
             g.drawRect(
                     (int) gameworld.getPlayer().getCollider().getX(),
