@@ -25,9 +25,9 @@ public class Settings {
         enemySpawnRate.put("Hard", 900L);
 
         powerUpSpawnRate = new HashMap<>();
-        powerUpSpawnRate.put("Easy", 20000L);
-        powerUpSpawnRate.put("Medium", 20000L);
-        powerUpSpawnRate.put("Hard", 30000L);
+        powerUpSpawnRate.put("Easy", 5000L);
+        powerUpSpawnRate.put("Medium", 7500L);
+        powerUpSpawnRate.put("Hard", 10000L);
 
         numberOfLives = new HashMap<>();
         numberOfLives.put("Easy", 6);

@@ -8,6 +8,9 @@ public class MouseController implements MouseListener {
     private static boolean mouseEntered = false;
     private static boolean mouseExited = false;
 
+    private static int mouseX = 0;
+    private static int mouseY = 0;
+
     private static final MouseController instance = new MouseController();
 
     public MouseController() {
@@ -21,6 +24,8 @@ public class MouseController implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         setMouseClicked(true);
+        mouseX = e.getX();
+        mouseY = e.getY();
         System.out.println(e.getX() + " " + e.getY());
     }
 
@@ -42,6 +47,14 @@ public class MouseController implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
         setMouseExited(true);
+    }
+
+    public static int getMouseX() {
+        return mouseX;
+    }
+
+    public static int getMouseY() {
+        return mouseY;
     }
 
     public static boolean isMouseClicked() {

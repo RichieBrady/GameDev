@@ -249,7 +249,7 @@ public class Viewer extends JPanel {
 
     private void drawPowerUps(int x, int y, int width, int height, String texture, int imageIndex, Graphics g) {
         File TextureToLoad = new File(texture);
-        ;  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         int imageWidth = 0;
         int imageHeight = 0;
 
@@ -259,9 +259,6 @@ public class Viewer extends JPanel {
         } else if (imageIndex == 1) {
             imageWidth = 80;
             imageHeight = 64;
-        } else if (imageIndex == 2) {
-            imageWidth = 80;
-            imageHeight = 81;
         } else if (imageIndex == 3) {
             imageWidth = 80;
             imageHeight = 97;

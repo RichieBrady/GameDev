@@ -34,9 +34,8 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 public class Model {
-    // TODO IMPLEMENT: lives, difficulty increase with points, character select, power-ups, high score table, resize frame and sprites for diff screensizes, add random chance for diff powerups
-    // TODO FIXES: fly floats above ground, enemy spawn,
-    // TODO add final boss, skull space ship, floats right to left zig zag up and down back and forth. If beat drop loads of sweet buns for sweet points :)
+    // TODO IMPLEMENT: character select, bullet power-up, resize frame, gameover, difficulty set to enemies past rather than points
+
     private final GameObject Player;
     private final CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
     private final CopyOnWriteArrayList<GameObject> BulletList = new CopyOnWriteArrayList<GameObject>();
@@ -56,6 +55,8 @@ public class Model {
 
     private boolean isHit = false;
     private boolean hasPower = false;
+    private boolean hasBulletPower = false;
+    private boolean hasStrengthPower = false;
     private boolean left = false;
     private boolean right = false;
     private boolean gameOver = false;
@@ -135,19 +136,18 @@ public class Model {
     }
 
     class PowerUpSpawnTask extends TimerTask {
-        // TODO add lives , figure out what shield power up does, add bullet, add proper power up effects
         String[] powerTextures = {
                 "res/iron_fist/boxed-fist_small.png",
                 "res/sweet_cake/sweet_cake_small.png",
-                "res/shield_game_item/shield_small.png",
                 "res/poison/poison_bottle_small.png",
-                "res/bullet_game_assets/bullet4_small.png",
+                "res/bullet_game_assets/bullet4.png",
         };
 
         // set random int
         public void run() {
             float x = ((float) Math.random() * 1500);
             int index = (int) (Math.random() * ((3) + 1));
+            System.out.println("powerup index " + index);
             PowerUpList.add(new PowerUpObject(powerTextures[index], x, index));
         }
     }
@@ -165,10 +165,20 @@ public class Model {
                 new Rectangle(300, 300, 50, 50));
     }
 
+    private void CreateBullet() {
+        String[] texture = {"res/bullet_game_assets/bullet4.png"};
+        BulletList.add(new GameObject(texture, 32, 64,
+                new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f),
+                new Rectangle(
+                        (int)Player.getCentre().getX(),
+                        (int)Player.getCentre().getY(),
+                        32, 64)));
+    }
+
     public void initTimers() {
         enemyTextures.add(new String[]{"res/Grumpy_bee/1small.png", "res/Grumpy_bee/2small.png"});
         enemyTextures.add(new String[]{"res/rocket/left1_small.png"});
-        enemyTextures.add(new String[]{"res/spider/orange-spider_small.png"}); // TODO add seperate spawn algo for this i.e power up method
+        enemyTextures.add(new String[]{"res/spider/orange-spider_small.png"});
         enemyTextures.add(new String[]{"res/ufo_alien/ufo_enemy_small.png"});
         enemyTextures.add(new String[]{"res/skull_ufo_boss/skull_left_small.png"});
         enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, settings.getEnemySpawnRate());
@@ -196,30 +206,49 @@ public class Model {
         // interactions between objects
         gameLogic();
     }
+    // TODO Leave bullet power up
+    private void setPowerUpEffects(PowerUpObject powerUp){
+
+        if (powerUp.getTextureLocation().contains("iron_fist")) {
+            hasPower = true;
+            hasStrengthPower = true;
+        } else if (powerUp.getTextureLocation().contains("sweet")) {
+            Score += 50;
+        } else if (powerUp.getTextureLocation().contains("poison")) {
+            Score -= 100;
+        } else if (powerUp.getTextureLocation().contains("bullet")) {
+            hasPower = true;
+            hasBulletPower = true;
+        }
+    }
+
+    private void strengthPower(GameObject temp) {
+        EnemiesList.remove(temp);
+        Score += 50;
+        if (powerCounter < 5) {
+            powerCounter++;
+        } else {
+            powerCounter = 0;
+            getPowerUpCollectedList().clear();
+            hasPower = false;
+        }
+    }
 
     private void gameLogic() {
         // this is a way to increment across the array list data structures
         //see if they hit anything
         // using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
-        for (GameObject powerUp : PowerUpList) {
+        for (PowerUpObject powerUp : PowerUpList) {
             if (powerUp.getCollider().intersects(Player.getCollider())) {
-                hasPower = true;
+                setPowerUpEffects(powerUp);
             }
         }
+
         for (GameObject temp : EnemiesList) {
             if (temp.getCollider().intersects(Player.getCollider())) {
-                if (hasPower) {
-                    EnemiesList.remove(temp);
-                    Score += 50;
-                    if (powerCounter < 5) {
-                        powerCounter++;
-                    } else {
-                        powerCounter = 0;
-                        getPowerUpCollectedList().clear();
-                        hasPower = false;
-                    }
+                if (hasStrengthPower) {
+                    strengthPower(temp);
                 } else {
-                    // TODO test if -250 will effect enemy spawn intervals
                     Score -= 250;
                     if (livesList.size() > 0) {
                         livesList.remove(0);
@@ -400,7 +429,7 @@ public class Model {
 
             } else if (rocketMode) {
 
-                int rocketSpeed = enemySpeed;
+                int rocketSpeed = enemySpeed + 2;
                 temp.getCentre().ApplyVector(new Vector3f(-rocketSpeed, 0, 0));
                 axisToCheck = temp.getCentre().getX();
 
@@ -479,7 +508,6 @@ public class Model {
                             30)
             );
         }
-
     }
 
     private void powerUpLogic() {
@@ -518,9 +546,7 @@ public class Model {
         }
     }
 
-    private void CreateBullet() {
-        //BulletList.add(new GameObject("res/bullet.png", 32, 64, new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f)));
-    }
+
 
     public GameObject getPlayer() {
         return Player;
