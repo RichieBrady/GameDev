@@ -84,10 +84,10 @@ public class Viewer extends JPanel {
 
         // //Draw Bullets
         // // change back
-        // gameworld.getBullets().forEach((temp) ->
-        // {
-        //     drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
-        // });
+         gameworld.getBullets().forEach((temp) ->
+         {
+             drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+         });
 
         // //Draw Enemies
         gameworld.getEnemies().forEach((temp) ->
@@ -106,6 +106,8 @@ public class Viewer extends JPanel {
         if (gameworld.isHasPower()) {
             gameworld.getPowerUpCollectedList().forEach((temp) -> drawHasPowerUp(temp.getTextureLocation(), temp.getImageIndex(), g));
         }
+
+
     }
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
@@ -193,12 +195,15 @@ public class Viewer extends JPanel {
         }
     }
 
-    private void drawBullet(int x, int y, int width, int height, String texture, Graphics g) {
-        File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+    private void drawBullet(int x, int y, int width, int height, String[] texture, Graphics g) {
+        File TextureToLoad = new File(texture[0]);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             Image myImage = ImageIO.read(TextureToLoad);
             //64 by 128
-            g.drawImage(myImage, x, y, x + width, y + height, 0, 0, 63, 127, null);
+            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 60, 59, null);
+            g.setColor(Color.red);
+            System.out.println(x + " bullet " + y);
+            g.drawRect(x, y, 30, 30);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -224,23 +229,24 @@ public class Viewer extends JPanel {
         int imageHeight = 0;
 
         if (imageIndex == 0) {
-            imageWidth = 320;
-            imageHeight = 319;
+            imageWidth = 80;
+            imageHeight = 80;
         } else if (imageIndex == 1) {
-            imageWidth = 696;
-            imageHeight = 558;
+            imageWidth = 80;
+            imageHeight = 64;
         } else if (imageIndex == 2) {
-            imageWidth = 522;
-            imageHeight = 529;
+            imageWidth = 80;
+            imageHeight = 97;
         } else if (imageIndex == 3) {
-            imageWidth = 459;
-            imageHeight = 556;
+            imageWidth = 60;
+            imageHeight = 59;
         }
 
         try {
             Image myImage = ImageIO.read(TextureToLoad);
 
             g.drawImage(myImage, 25, 20, 55, 50, 0, 0, imageWidth, imageHeight, null);
+            g.drawString("x " + gameworld.getStrengthCounter(), 60, 50);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -259,10 +265,10 @@ public class Viewer extends JPanel {
         } else if (imageIndex == 1) {
             imageWidth = 80;
             imageHeight = 64;
-        } else if (imageIndex == 3) {
+        } else if (imageIndex == 2) {
             imageWidth = 80;
             imageHeight = 97;
-        } else if (imageIndex == 4) {
+        } else if (imageIndex == 3) {
             imageWidth = 60;
             imageHeight = 59;
         }

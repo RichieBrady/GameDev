@@ -50,13 +50,18 @@ public class Model {
     private double yVelocity = 0;
     private double xVelocity = 0;
     private int jump = 0;
-    private int powerCounter = 0;
+
     private int enemySpeed = 1;
+    private int enemyCount = 0;
 
     private boolean isHit = false;
     private boolean hasPower = false;
     private boolean hasBulletPower = false;
+    private boolean isBulletShot = false;
+    private Vector3f bulletVector = new Vector3f(0,0,0);
+    private int bulletCounter = 5;
     private boolean hasStrengthPower = false;
+    private int strengthCounter = 5;
     private boolean left = false;
     private boolean right = false;
     private boolean gameOver = false;
@@ -82,20 +87,20 @@ public class Model {
 
         public void run() {
             if (getScore() <= 600) {
-                if ((getScore() >= 200 && getScore() <= 250) && enemyIncrementer == 0) {
+                if ((enemyCount >= 20 && enemyCount <= 25) && enemyIncrementer == 0) {
                     enemyIncrementer = 1;
                     rocketMode = true;
-                } else if ((getScore() >= 300 && getScore() <= 350) && enemyIncrementer == 1) {
+                } else if ((enemyCount >= 30 && enemyCount <= 35) && enemyIncrementer == 1) {
                     enemyIncrementer = 2;
                     rocketMode = false;
                     spiderMode = true;
                     getEnemies().clear();
-                } else if ((getScore() >= 400 && getScore() <= 450) && enemyIncrementer == 2) {
+                } else if ((enemyCount >= 40 && enemyCount <= 45) && enemyIncrementer == 2) {
                     enemyIncrementer = 3;
                     spiderMode = false;
                     ufoMode = true;
                     getEnemies().clear();
-                } else if ((getScore() >= 500 && getScore() <= 550) && enemyIncrementer == 3) {
+                } else if ((enemyCount >= 50 && enemyCount <= 55) && enemyIncrementer == 3) {
                     getEnemies().clear();
                     enemyIncrementer = 4;
                     ufoMode = false;
@@ -165,15 +170,7 @@ public class Model {
                 new Rectangle(300, 300, 50, 50));
     }
 
-    private void CreateBullet() {
-        String[] texture = {"res/bullet_game_assets/bullet4.png"};
-        BulletList.add(new GameObject(texture, 32, 64,
-                new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f),
-                new Rectangle(
-                        (int)Player.getCentre().getX(),
-                        (int)Player.getCentre().getY(),
-                        32, 64)));
-    }
+
 
     public void initTimers() {
         enemyTextures.add(new String[]{"res/Grumpy_bee/1small.png", "res/Grumpy_bee/2small.png"});
@@ -201,7 +198,8 @@ public class Model {
         // Enemy Logic next
         enemyLogic();
         // Bullets move next
-        //bulletLogic();
+        bulletLogic();
+
         powerUpLogic();
         // interactions between objects
         gameLogic();
@@ -212,6 +210,8 @@ public class Model {
         if (powerUp.getTextureLocation().contains("iron_fist")) {
             hasPower = true;
             hasStrengthPower = true;
+            strengthCounter = 5;
+            getPowerUpCollectedList().add(powerUp);
         } else if (powerUp.getTextureLocation().contains("sweet")) {
             Score += 50;
         } else if (powerUp.getTextureLocation().contains("poison")) {
@@ -219,16 +219,16 @@ public class Model {
         } else if (powerUp.getTextureLocation().contains("bullet")) {
             hasPower = true;
             hasBulletPower = true;
+            getPowerUpCollectedList().add(powerUp);
         }
     }
 
     private void strengthPower(GameObject temp) {
         EnemiesList.remove(temp);
         Score += 50;
-        if (powerCounter < 5) {
-            powerCounter++;
+        if (strengthCounter > 1) {
+            strengthCounter--;
         } else {
-            powerCounter = 0;
             getPowerUpCollectedList().clear();
             hasPower = false;
         }
@@ -241,6 +241,7 @@ public class Model {
         for (PowerUpObject powerUp : PowerUpList) {
             if (powerUp.getCollider().intersects(Player.getCollider())) {
                 setPowerUpEffects(powerUp);
+                PowerUpList.remove(powerUp); // clears here
             }
         }
 
@@ -258,12 +259,7 @@ public class Model {
                 }
             }
         }
-        if (hasPower) {
-            if (getPowerUpList().size() > 0 && getPowerUpCollectedList().size() == 0) {
-                getPowerUpCollectedList().add(getPowerUpList().get(0));
-            }
-            getPowerUpList().clear();
-        }
+
         if (isHit) {
             getPlayer().setCentre(new Point3f(300, 300, 0));
             if (!bossMode) {
@@ -311,10 +307,20 @@ public class Model {
 
         // control y (click for up/gravity down)
         if (MouseController.isMouseClicked()) {
+            if (hasBulletPower && !isBulletShot) {
+                int x = MouseController.getMouseX();
+                int y = MouseController.getMouseY();
+
+                bulletVector(x , y);
+                CreateBullet();
+                isBulletShot = true;
+            }
             if (jump >= 0) {
                 yVelocity = 15;
                 jump = 8;
             }
+
+
             // TODO add if powerup == bullet get x, y click and send bullet
             MouseController.setMouseClicked(false);
         }
@@ -332,6 +338,58 @@ public class Model {
         } else {
             getPlayer().setTextureLocations(new String[]{"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"});
         }
+    }
+
+    private void bulletVector(int mouseClickX, int mouseClickY){
+        double playerX = getPlayer().getCentre().getX();
+        double playerY = getPlayer().getCentre().getY();
+
+        double vx = (double)mouseClickX - playerX;
+        double vy = (double)mouseClickY - playerY;
+
+        double distance = Math.sqrt(vx * vx + vy * vy);
+
+        double dirX = vx / distance;
+        double dirY = vy / distance;
+
+        bulletVector = new Vector3f((float)dirX, (float)dirY, 0);
+    }
+
+    private void bulletLogic() {
+        // TODO Auto-generated method stub
+        // move bullets
+
+        for (GameObject temp : BulletList) {
+            //check to move them
+
+            temp.getCentre().ApplyVector(bulletVector);
+            //see if they hit anything
+
+            //see if they get to the top of the screen ( remember 0 is the top
+            if (temp.getCentre().getY() == 0) {
+                BulletList.remove(temp);
+                isBulletShot = false;
+            } else if (floor(temp.getCentre().getY()) == 628) {
+                BulletList.remove(temp);
+                isBulletShot = false;
+            } else if (floor(temp.getCentre().getX()) == 0) {
+                BulletList.remove(temp);
+                isBulletShot = false;
+            } else if (floor(temp.getCentre().getX()) == 1460) {
+                BulletList.remove(temp);
+                isBulletShot = false;
+            }
+        }
+    }
+
+    private void CreateBullet() {
+        String[] texture = {"res/bullet_game_assets/bullet4.png"};
+        BulletList.add(new GameObject(texture, 32, 64,
+                new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0.0f),
+                new Rectangle(
+                        (int)Player.getCentre().getX(),
+                        (int)Player.getCentre().getY(),
+                        32, 64)));
     }
 
     private void movementLogic(Point3f checkForPlayerCollision, int distanceToTravel, boolean isX) {
@@ -461,8 +519,8 @@ public class Model {
                 EnemiesList.remove(temp);
                 // enemies lose so score increased
                 Score += 10;
+                enemyCount++;
             }
-
         }
     }
 
@@ -529,25 +587,6 @@ public class Model {
         }
     }
 
-    private void bulletLogic() {
-        // TODO Auto-generated method stub
-        // move bullets
-
-        for (GameObject temp : BulletList) {
-            //check to move them
-
-            temp.getCentre().ApplyVector(new Vector3f(0, 1, 0));
-            //see if they hit anything
-
-            //see if they get to the top of the screen ( remember 0 is the top
-            if (temp.getCentre().getY() == 0) {
-                BulletList.remove(temp);
-            }
-        }
-    }
-
-
-
     public GameObject getPlayer() {
         return Player;
     }
@@ -586,6 +625,10 @@ public class Model {
 
     public boolean isHasPower() {
         return hasPower;
+    }
+
+    public int getStrengthCounter() {
+        return strengthCounter;
     }
 }
 
