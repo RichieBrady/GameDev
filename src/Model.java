@@ -34,7 +34,7 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 public class Model {
-    // TODO IMPLEMENT: TimedTask restart, set proper enemy intervals, comments
+    // TODO IMPLEMENT: set proper enemy intervals, comments
 
     private GameObject Player;
     private final CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
@@ -42,7 +42,6 @@ public class Model {
     private final CopyOnWriteArrayList<PowerUpObject> PowerUpList = new CopyOnWriteArrayList<PowerUpObject>();
     private final CopyOnWriteArrayList<PowerUpObject> PowerUpCollectedList = new CopyOnWriteArrayList<PowerUpObject>();
     private final CopyOnWriteArrayList<Integer> livesList = new CopyOnWriteArrayList<Integer>();
-    private final HashMap<Integer, String[]> characterSelect = new HashMap<>();
     private final ArrayList<String[]> enemyTextures = new ArrayList<>();
     private final Rectangle groundCollider = new Rectangle(0, 665, 1020, 39);
     private final Settings settings;
@@ -52,7 +51,7 @@ public class Model {
     private int jump = 0;
 
     private int enemySpeed = 1;
-    private int enemyCount = 0;
+    private int enemyCount = 50;
 
     private boolean isHit = false;
     private boolean hasPower = false;
@@ -71,11 +70,11 @@ public class Model {
     private boolean ufoMode = false;
     private boolean bossMode = false;
     private boolean bossSpawned = false;
-    private int bossLives = 10;
+    private int bossLives = 1;
     private boolean bossCollided = false;
 
-    private final Timer enemySpawnTimer = new Timer();
-    private final TimerTask enemySpawnTask = new EnemySpawnTask();
+    private Timer enemySpawnTimer = new Timer();
+    private TimerTask enemySpawnTask = new EnemySpawnTask();
 
     private final Timer powerUpSpawnTimer = new Timer();
     private final TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
@@ -136,23 +135,28 @@ public class Model {
                 bossSpawned = false;
 
                 enemySpawnTask.cancel();
-                //enemySpawnTimer.cancel();
+                enemySpawnTimer.cancel();
             }
         }
     }
 
     class PowerUpSpawnTask extends TimerTask {
         String[] powerTextures = {
-                "res/iron_fist/boxed-fist_small.png",
+                "res/bullet_game_assets/bullet4.png",
                 "res/sweet_cake/sweet_cake_small.png",
                 "res/poison/poison_bottle_small.png",
-                "res/bullet_game_assets/bullet4.png",
+                "res/iron_fist/boxed-fist_small.png",
         };
-
+        int ironIndex;
         // set random int
         public void run() {
+            if (bossMode) {
+                ironIndex = 2;
+            } else {
+                ironIndex = 3;
+            }
             float x = ((float) Math.random() * 1000);
-            int index = (int) (Math.random() * ((3) + 1));
+            int index = (int) (Math.random() * ((ironIndex) + 1));
             PowerUpList.add(new PowerUpObject(powerTextures[index], x, index));
         }
     }
@@ -162,9 +166,6 @@ public class Model {
         // Player
         this.settings = settings;
         // TODO implement character select in menu and figure out logic to implement change of direction
-        characterSelect.put(1, new String[]{"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"});
-        characterSelect.put(2, new String[]{"res/goggle_eyes_bee/up_right_small.png", "res/goggle_eyes_bee/down_right_small.png"});
-        characterSelect.put(3, new String[]{"res/red_bee/red_up_right_small.png", "res/red_bee/red_down_right_small.png"});
         String[] textures = {"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
                 new Rectangle(300, 300, 50, 50));
@@ -186,21 +187,22 @@ public class Model {
         ufoMode = false;
 
         bossSpawned = false;
-        bossLives = 10;
         bossCollided = false;
 
         if (bossMode) {
             bossMode = false;
-            enemySpawnTask.run();
+            enemySpawnTimer = new Timer();
+            enemySpawnTask = new EnemySpawnTask();
+            enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, settings.getEnemySpawnRate());
         }
 
         EnemiesList.clear();
         PowerUpList.clear();
         PowerUpCollectedList.clear();
         BulletList.clear();
+        livesList.clear();
 
         initSettings();
-        //initTimers();
         String[] textures = {"res/green_fly/up_right_small.png", "res/green_fly/down_right_small.png"};
         Player = new GameObject(textures, 80, 80, new Point3f(300, 300, 0),
                 new Rectangle(300, 300, 50, 50));
@@ -218,11 +220,12 @@ public class Model {
     }
 
     public void initSettings() {
-        settings.getNumberOfLives();
+//        settings.getNumberOfLives();
         for (int i = 0; i < settings.getNumberOfLives(); i++) {
             livesList.add(i);
         }
         enemySpeed = settings.getEnemySpeed();
+        bossLives = settings.getNumberOfBossLives();
     }
 
     // This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly.
@@ -316,6 +319,7 @@ public class Model {
                 if (bullet.getCollider().intersects(temp.getCollider())) {
                     if (!bossMode) {
                         EnemiesList.remove(temp);
+                        BulletList.remove(bullet);
                     } else if (bossLives > 0) {
                         bossLives--;
                         BulletList.remove(bullet);
@@ -330,10 +334,6 @@ public class Model {
         }
 
         if (gameOver || winner) {
-//            enemySpawnTask.cancel();
-//            enemySpawnTimer.cancel();
-//            powerUpSpawnTask.cancel();
-//            powerUpSpawnTimer.cancel();
             return;
         }
 
@@ -537,9 +537,13 @@ public class Model {
             } else if (ufoMode) {
 
                 if (temp.getCentre().getY() == 0) {
-                    temp.setUfoModeY(-1);
+
+                    temp.setUfoModeY(-enemySpeed);
+
                 } else if (floor(temp.getCentre().getY()) == 628) {
-                    temp.setUfoModeY(1);
+
+                    temp.setUfoModeY(enemySpeed);
+
                 }
                 temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, temp.getUfoModeY(), 0));
                 axisToCheck = temp.getCentre().getX();
@@ -551,15 +555,24 @@ public class Model {
                 axisToCheck = temp.getCentre().getX();
 
             } else if (bossMode) {
+
                 if (floor(temp.getCentre().getY()) == 0) {
-                    temp.setUfoModeY(-3);
+
+                    temp.setUfoModeY(-enemySpeed);
+
                 } else if (floor(temp.getCentre().getY()) == 665) {
-                    temp.setUfoModeY(3);
+
+                    temp.setUfoModeY(enemySpeed);
+
                 } else if (floor(temp.getCentre().getX())  == 1020) {
-                    temp.setUfoModeX(-3);
+
+                    temp.setUfoModeX(-enemySpeed);
+
                 } else if (floor(temp.getCentre().getX()) == 0 ) {
-                    temp.setUfoModeX(3);
+
+                    temp.setUfoModeX(enemySpeed);
                 }
+
                 temp.getCentre().ApplyVector(new Vector3f(temp.getUfoModeX(), temp.getUfoModeY(), 0));
                 axisToCheck = temp.getCentre().getX();
 
@@ -573,6 +586,7 @@ public class Model {
 
             //see if they get to the top of the screen ( remember 0 is the top
             if (axisToCheck == boundary && !bossMode) {
+
                 EnemiesList.remove(temp);
                 // enemies lose so score increased
                 Score += 10;
@@ -583,6 +597,7 @@ public class Model {
 
     private void setEnemyCollider(GameObject temp){
         if (rocketMode) {
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 15,
@@ -590,7 +605,9 @@ public class Model {
                             40,
                             25)
             );
+
         } else if (spiderMode) {
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 24,
@@ -598,7 +615,9 @@ public class Model {
                             50,
                             50)
             );
+
         } else if (ufoMode) {
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 24,
@@ -606,7 +625,9 @@ public class Model {
                             50,
                             50)
             );
+
         } else if (bossMode) {
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 37,
@@ -614,7 +635,9 @@ public class Model {
                             75,
                             80)
             );
+
         } else {
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 15,
@@ -622,13 +645,16 @@ public class Model {
                             40,
                             30)
             );
+
         }
     }
 
     private void powerUpLogic() {
         // Move enemies
         for (GameObject temp : PowerUpList) {
+
             temp.getCentre().ApplyVector(new Vector3f(0, -1, 0));
+
             temp.setCollider(
                     new Rectangle(
                             (int) temp.getCentre().getX() + 5,
@@ -636,6 +662,7 @@ public class Model {
                             temp.getWidth() - 10,
                             temp.getHeight() -10)
             );
+
             //see if they get to the top of the screen ( remember 0 is the top
             if (temp.getCentre().getY() == 665.0f)  // current boundary need to pass value to model
             {

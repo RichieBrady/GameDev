@@ -73,15 +73,14 @@ public class MainWindow {
                 canvas.addMouseListener(MouseController); // add mouse controller
                 canvas.addMouseMotionListener(MouseMotionController); // add motion controller
                 canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
-                settings.setDifficulty(optionsView.getDifficulty());
-                System.out.println(optionsView.getDifficulty());
-                gameworld.initSettings();
-                gameworld.initTimers();
+                settings.setDifficulty(optionsView.getDifficulty()); // set difficulty value in settings if changed in options
+                gameworld.initSettings(); // initilize settings based on difficulty chosen
+                gameworld.initTimers(); // initialize power up and enemy spawn timers and tasks
                 startGame = true;
             }
         });
         startMenuButton.setBounds(500, 798/2, 200, 40);
-        JButton optionsButton = new JButton("Options");  // start button
+        JButton optionsButton = new JButton("Options");  // options button, shows difficulty selection options
         optionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

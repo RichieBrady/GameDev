@@ -32,8 +32,8 @@ public class Point3f {
     private float y;
     private float z;
 
-    private int boundary = 1020;
-    private int boundaryY = 665;
+    private int boundary = 1020; // changed x boundary to fit new window size
+    private int boundaryY = 665; // added y boundary to fit new window size
 
 
     // default constructor

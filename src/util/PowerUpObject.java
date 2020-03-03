@@ -2,6 +2,9 @@ package util;
 
 import java.awt.*;
 
+/*power up class inherits GameObject. power ups use one image with no animation so this class
+* allows for power up object creation with extra class variables and a single image*/
+
 public class PowerUpObject extends GameObject{
     private String textureLocation;
     private int imageIndex;

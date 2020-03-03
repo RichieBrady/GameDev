@@ -68,7 +68,6 @@ public class Viewer extends JPanel {
         CurrentAnimationTime++; // runs animation time step
         //Draw background
         if (gameworld.isWinner()) {
-            System.out.println("winner");
             drawWinner(g);
         }
         else if (gameworld.isGameOver()) {
@@ -297,18 +296,22 @@ public class Viewer extends JPanel {
         int x1 = 25;
         int x2 = 55;
         int strPos = 60;
-        if (imageIndex == 0) {
-            imageWidth = 80;
-            imageHeight = 80;
-            counter = gameworld.getStrengthCounter();
 
-        } else if (imageIndex == 3) {
+        if (imageIndex == 0) {
+
             imageWidth = 60;
             imageHeight = 59;
             counter = gameworld.getBulletCounter();
             x1 = 80;
             x2 = 110;
             strPos = 115;
+
+        } else if (imageIndex == 3) {
+
+            imageWidth = 80;
+            imageHeight = 80;
+            counter = gameworld.getStrengthCounter();
+
         }
 
         try {
@@ -329,8 +332,8 @@ public class Viewer extends JPanel {
         int imageHeight = 0;
 
         if (imageIndex == 0) {
-            imageWidth = 80;
-            imageHeight = 80;
+            imageWidth = 60;
+            imageHeight = 59;
         } else if (imageIndex == 1) {
             imageWidth = 80;
             imageHeight = 64;
@@ -338,8 +341,8 @@ public class Viewer extends JPanel {
             imageWidth = 80;
             imageHeight = 97;
         } else if (imageIndex == 3) {
-            imageWidth = 60;
-            imageHeight = 59;
+            imageWidth = 80;
+            imageHeight = 80;
         }
 
         try {

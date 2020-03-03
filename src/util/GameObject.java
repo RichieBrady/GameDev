@@ -31,19 +31,19 @@ public class GameObject {
     private Point3f centre = new Point3f(0, 0, 0); // Centre of object, using 3D as objects may be scaled
     private int width = 10;
     private int height = 10;
-    private float ufoModeY = 4;
-    private float ufoModeX = -4;
+    private float ufoModeY = 4; // for ufo enemy movement on Y axis
+    private float ufoModeX = -4; // for ufo enemy movement on X axis
     private boolean hasTextured = false;
     private boolean collided = false;
     private String[] textureLocations;
     private String[] blanktexture = {"res/blankSprite.png", "res/blankSprite.png"};
-    private Rectangle collider = new Rectangle(0, 0, 0 ,0);
+    private Rectangle collider = new Rectangle(0, 0, 0 ,0); // game object colliders are rectangles
 
 
     public GameObject() {
 
     }
-
+    // changed constructors to take string array because asset set that I used did not have animation sprites only separate images
     public GameObject(String[] textureLocations, int width, int height, Point3f centre, Rectangle collider) {
         hasTextured = true;
         this.textureLocations = textureLocations;
@@ -53,6 +53,7 @@ public class GameObject {
         this.collider = collider;
     }
 
+    // overloaded constructor allows setting ufoModeY when creating ufo enemies
     public GameObject(String[] textureLocations, int width, int height, Point3f centre, Rectangle collider, int ufoModeY) {
         hasTextured = true;
         this.textureLocations = textureLocations;
