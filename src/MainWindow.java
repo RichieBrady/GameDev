@@ -44,7 +44,7 @@ public class MainWindow {
     private static Model gameworld = new Model(settings);
     private static Viewer canvas = new Viewer(gameworld);
     private static OptionsView optionsView = new OptionsView();
-    private KeyListener Controller = new Controller();
+    private static Controller Controller = new Controller();
     private MouseListener MouseController = new MouseController();
     private MouseMotionListener MouseMotionController = new MouseMotionController();
     private static int TargetFPS = 100;
@@ -52,13 +52,13 @@ public class MainWindow {
     private JLabel BackgroundImageForStartMenu;
 
     public MainWindow() {
-        frame.setSize(1536, 798);  // you can customise this later and adapt it to change on size.
+        frame.setSize(1100, 798);  // you can customise this later and adapt it to change on size.
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //If exit // you can modify with your way of quitting , just is a template.
         frame.setLayout(null);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.add(canvas);
-        canvas.setBounds(0, 0, 1536, 798); // 1536
+        canvas.setBounds(0, 0, 1100, 798); // 1536
         canvas.setBackground(new Color(255, 255, 255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
         canvas.setVisible(false);   // this will become visible after you press the key.
 
@@ -80,7 +80,7 @@ public class MainWindow {
                 startGame = true;
             }
         });
-        startMenuButton.setBounds(frame.getBounds().width/2, frame.getBounds().height/2, 200, 40);
+        startMenuButton.setBounds(500, 798/2, 200, 40);
         JButton optionsButton = new JButton("Options");  // start button
         optionsButton.addActionListener(new ActionListener() {
             @Override
@@ -88,13 +88,13 @@ public class MainWindow {
                 optionsView.createAndShowOptions();
             }
         });
-        optionsButton.setBounds(frame.getBounds().width/2, frame.getBounds().height/2 + 40, 200, 40);
+        optionsButton.setBounds(500, 798/2 + 40, 200, 40);
         //loading background image
-        File BackroundToLoad = new File("res/Full-Background.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File BackroundToLoad = new File("res/Full-Background_menu.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             BufferedImage myPicture = ImageIO.read(BackroundToLoad);
             BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-            BackgroundImageForStartMenu.setBounds(0, 0, 1536, 798);
+            BackgroundImageForStartMenu.setBounds(0, 0, 1100, 798);
             frame.add(BackgroundImageForStartMenu);
         } catch (IOException e) {
             e.printStackTrace();
@@ -119,6 +119,15 @@ public class MainWindow {
 
             if (startGame) {
                 gameloop();
+            }
+
+            while(gameworld.isGameOver() || gameworld.isWinner()) {
+                canvas.updateview();
+                if (Controller.isKeySpacePressed()) {
+                    gameworld.resetGameWorld();
+                    gameworld.setGameOver(false);
+                    gameworld.setWinner(false);
+                }
             }
 
             //UNIT test to see if framerate matches

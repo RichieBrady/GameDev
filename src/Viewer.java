@@ -67,47 +67,63 @@ public class Viewer extends JPanel {
         super.paintComponent(g);
         CurrentAnimationTime++; // runs animation time step
         //Draw background
-        drawBackground(g);
-
-        gameworld.update();
-
-        //Draw player Game Object
-        int x = (int) gameworld.getPlayer().getCentre().getX();
-        int y = (int) gameworld.getPlayer().getCentre().getY();
-        int width = (int) gameworld.getPlayer().getWidth();
-        int height = (int) gameworld.getPlayer().getHeight();
-        String[] texture = gameworld.getPlayer().getTexture();
-
-        //Draw player
-
-        drawPlayer(x, y, width, height, texture, g);
-
-        // //Draw Bullets
-        // // change back
-         gameworld.getBullets().forEach((temp) ->
-         {
-             drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
-         });
-
-        // //Draw Enemies
-        gameworld.getEnemies().forEach((temp) ->
-                drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g));
-
-        // Draw power ups
-        gameworld.getPowerUpList().forEach((temp) -> drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTextureLocation(), temp.getImageIndex(), g));
-
-        int xAxis = 30;
-        int yAxis = 720;
-        for (int i : gameworld.getLivesList()) {
-            drawLives(xAxis, yAxis, g);
-            xAxis += 10;
+        if (gameworld.isWinner()) {
+            System.out.println("winner");
+            drawWinner(g);
         }
-
-        if (gameworld.isHasPower()) {
-            gameworld.getPowerUpCollectedList().forEach((temp) -> drawHasPowerUp(temp.getTextureLocation(), temp.getImageIndex(), g));
+        else if (gameworld.isGameOver()) {
+            drawGameOver(g);
         }
+        else {
+            drawBackground(g);
 
+            gameworld.update();
 
+            //Draw player Game Object
+            int x = (int) gameworld.getPlayer().getCentre().getX();
+            int y = (int) gameworld.getPlayer().getCentre().getY();
+            int width = (int) gameworld.getPlayer().getWidth();
+            int height = (int) gameworld.getPlayer().getHeight();
+            String[] texture = gameworld.getPlayer().getTexture();
+
+            //Draw player
+
+            drawPlayer(x, y, width, height, texture, g);
+
+            // //Draw Bullets
+            // // change back
+            gameworld.getBullets().forEach((temp) ->
+            {
+                drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g);
+            });
+
+            // //Draw Enemies
+            gameworld.getEnemies().forEach((temp) ->
+                    drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g));
+
+            // Draw power ups
+            gameworld.getPowerUpList().forEach((temp) -> drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTextureLocation(), temp.getImageIndex(), g));
+
+            int xAxis = 30;
+            int yAxis = 720;
+            for (int i : gameworld.getLivesList()) {
+                drawLives(xAxis, yAxis, g);
+                xAxis += 10;
+            }
+
+            if (gameworld.isBossMode()) {
+                int bossX = 460;
+                int bossY = 20;
+                for (int i = 0; i < gameworld.getBossLives(); i++) {
+                    drawBossLives(bossX, bossY, g);
+                    bossX += 20;
+                }
+            }
+
+            if (gameworld.isHasPower()) {
+                gameworld.getPowerUpCollectedList().forEach((temp) -> drawHasPowerUp(temp.getTextureLocation(), temp.getImageIndex(), g));
+            }
+        }
     }
 
     private void drawEnemies(int x, int y, int width, int height, String[] texture, Graphics g) {
@@ -183,12 +199,52 @@ public class Viewer extends JPanel {
     private void drawBackground(Graphics g) {
         //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 
-        File TextureToLoad = new File("res/Full-Background.png");
+        File TextureToLoad = new File("res/Full-Background_small.png");
         try {
             Image myImage = ImageIO.read(TextureToLoad);
-            g.drawImage(myImage, 0, 0, 1536, 768, 0, 0, 3072, 1536, null);
+            g.drawImage(myImage, 0, 0, 1200, 768, 0, 0, 1200, 600, null);
             g.setColor(Color.red);
-            g.drawRect(0, 665, 1535, 39);
+            g.drawRect(0, 665, 1200, 39);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void drawGameOver(Graphics g) {
+        File TextureToLoad = new File("res/Full-Background_small.png");
+        try {
+            Image myImage = ImageIO.read(TextureToLoad);
+            g.drawImage(myImage, 0, 0, 1200, 768, 0, 0, 1200, 600, null);
+            g.setFont(new Font("TimesRoman", Font.BOLD, 32));
+            g.setColor(Color.black);
+            g.drawString("Game Over", 480, 768/2);
+            g.setFont(new Font("TimesRoman", Font.BOLD, 16));
+            g.drawString("Final Score: " + gameworld.getScore(), 520, 420);
+
+            g.setColor(Color.black);
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 16));
+            g.drawString("Press space bar to restart or close window", 400, 650);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void drawWinner(Graphics g) {
+        File TextureToLoad = new File("res/Full-Background_small.png");
+        try {
+            Image myImage = ImageIO.read(TextureToLoad);
+            g.drawImage(myImage, 0, 0, 1200, 768, 0, 0, 1200, 600, null);
+            g.setFont(new Font("TimesRoman", Font.BOLD, 32));
+            g.setColor(Color.black);
+            g.drawString("Winner", 500, 768/2);
+            g.setFont(new Font("TimesRoman", Font.BOLD, 16));
+            g.drawString("Final Score: " + gameworld.getScore(), 520, 420);
+
+            g.setColor(Color.black);
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 16));
+            g.drawString("Press space bar to restart or close window", 400, 650);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -200,10 +256,9 @@ public class Viewer extends JPanel {
         try {
             Image myImage = ImageIO.read(TextureToLoad);
             //64 by 128
-            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 60, 59, null);
+            g.drawImage(myImage, x, y, x + 35, y + 35, 0, 0, 60, 59, null);
             g.setColor(Color.red);
-            System.out.println(x + " bullet " + y);
-            g.drawRect(x, y, 30, 30);
+            g.drawRect(x + 5, y + 5, 25, 25);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -212,10 +267,21 @@ public class Viewer extends JPanel {
     }
 
     private void drawLives(int x, int y, Graphics g) {
-        File TextureToLoad = new File("res/life/life.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        File TextureToLoad = new File("res/life/life_small.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             Image myImage = ImageIO.read(TextureToLoad);
-            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 260, 207, null);
+            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 100, 80, null);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void drawBossLives(int x, int y, Graphics g) {
+        File TextureToLoad = new File("res/skull_ufo_boss/skull_left_small_life.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+        try {
+            Image myImage = ImageIO.read(TextureToLoad);
+            g.drawImage(myImage, x, y, x + 30, y + 30, 0, 0, 100, 67, null);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -227,26 +293,29 @@ public class Viewer extends JPanel {
         // TODO add image index here set size
         int imageWidth = 0;
         int imageHeight = 0;
-
+        int counter = 0;
+        int x1 = 25;
+        int x2 = 55;
+        int strPos = 60;
         if (imageIndex == 0) {
             imageWidth = 80;
             imageHeight = 80;
-        } else if (imageIndex == 1) {
-            imageWidth = 80;
-            imageHeight = 64;
-        } else if (imageIndex == 2) {
-            imageWidth = 80;
-            imageHeight = 97;
+            counter = gameworld.getStrengthCounter();
+
         } else if (imageIndex == 3) {
             imageWidth = 60;
             imageHeight = 59;
+            counter = gameworld.getBulletCounter();
+            x1 = 80;
+            x2 = 110;
+            strPos = 115;
         }
 
         try {
             Image myImage = ImageIO.read(TextureToLoad);
 
-            g.drawImage(myImage, 25, 20, 55, 50, 0, 0, imageWidth, imageHeight, null);
-            g.drawString("x " + gameworld.getStrengthCounter(), 60, 50);
+            g.drawImage(myImage, x1, 20, x2, 50, 0, 0, imageWidth, imageHeight, null);
+            g.drawString("x " + counter, strPos, 48);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

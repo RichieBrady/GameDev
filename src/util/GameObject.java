@@ -33,12 +33,12 @@ public class GameObject {
     private int height = 10;
     private float ufoModeY = 4;
     private float ufoModeX = -4;
-    private int rocketModeX = 5;
     private boolean hasTextured = false;
     private boolean collided = false;
     private String[] textureLocations;
     private String[] blanktexture = {"res/blankSprite.png", "res/blankSprite.png"};
     private Rectangle collider = new Rectangle(0, 0, 0 ,0);
+
 
     public GameObject() {
 
@@ -123,6 +123,7 @@ public class GameObject {
     public Rectangle getCollider() {
         return collider;
     }
+
 }
 
 /*

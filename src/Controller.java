@@ -28,24 +28,13 @@ SOFTWARE.
  */
 
 //Singeton pattern
-public class Controller implements KeyListener, MouseListener, MouseMotionListener {
+public class Controller implements KeyListener {
 
     private static boolean KeyAPressed = false;
     private static boolean KeySPressed = false;
     private static boolean KeyDPressed = false;
     private static boolean KeyWPressed = false;
     private static boolean KeySpacePressed = false;
-
-    // Mouse Listener bools
-    private static boolean mouseClicked = false;
-    private static boolean mousePressed = false;
-    private static boolean mouseReleased = false;
-    private static boolean mouseEntered = false;
-    private static boolean mouseExited = false;
-
-    // Mouse Motion Listener bools
-    private static boolean mouseDragged = false;
-    private static boolean mouseMoved = false;
 
     private static final Controller instance = new Controller();
 
@@ -161,43 +150,6 @@ public class Controller implements KeyListener, MouseListener, MouseMotionListen
 
     public void setKeySpacePressed(boolean keySpacePressed) {
         KeySpacePressed = keySpacePressed;
-    }
-
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
     }
 
 }
