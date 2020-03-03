@@ -1,7 +1,9 @@
 package util;
 
 import java.awt.*;
-
+/* Richard Brady
+ * 16726839
+ * */
 /*power up class inherits GameObject. power ups use one image with no animation so this class
 * allows for power up object creation with extra class variables and a single image*/
 

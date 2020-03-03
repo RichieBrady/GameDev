@@ -2,6 +2,9 @@ package util;
 
 import java.util.HashMap;
 
+/* Richard Brady
+ * 16726839
+ * */
 /* Settings class holds all the different settings for each difficulty setting */
 
 public class Settings {

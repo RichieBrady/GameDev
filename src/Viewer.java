@@ -32,9 +32,12 @@ SOFTWARE.
    
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
+
+/* Richard Brady
+ * 16726839
+ * */
 public class Viewer extends JPanel {
     private long CurrentAnimationTime = 0;
-    private boolean wallTilesCollected = false;
     Model gameworld;
 
     public Viewer(Model World) {
@@ -67,13 +70,13 @@ public class Viewer extends JPanel {
         super.paintComponent(g);
         CurrentAnimationTime++; // runs animation time step
         //Draw background
-        if (gameworld.isWinner()) {
+        if (gameworld.isWinner()) { // show winner screen if boss defeated
             drawWinner(g);
         }
-        else if (gameworld.isGameOver()) {
+        else if (gameworld.isGameOver()) { // show game over screen if player lost
             drawGameOver(g);
         }
-        else {
+        else { // else draw game world
             drawBackground(g);
 
             gameworld.update();
@@ -103,6 +106,7 @@ public class Viewer extends JPanel {
             // Draw power ups
             gameworld.getPowerUpList().forEach((temp) -> drawPowerUps((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTextureLocation(), temp.getImageIndex(), g));
 
+            // draw life images on bottom left
             int xAxis = 30;
             int yAxis = 720;
             for (int i : gameworld.getLivesList()) {
@@ -110,6 +114,7 @@ public class Viewer extends JPanel {
                 xAxis += 10;
             }
 
+            // draw boss life images on top of screen
             if (gameworld.isBossMode()) {
                 int bossX = 460;
                 int bossY = 20;
@@ -118,7 +123,7 @@ public class Viewer extends JPanel {
                     bossX += 20;
                 }
             }
-
+            // if power collected draw power up icon and number of uses on top left
             if (gameworld.isHasPower()) {
                 gameworld.getPowerUpCollectedList().forEach((temp) -> drawHasPowerUp(temp.getTextureLocation(), temp.getImageIndex(), g));
             }
@@ -131,9 +136,10 @@ public class Viewer extends JPanel {
         int imageHeight = 0;
         int drawRectX = 0;
         int drawRectY = 0;
-        int drawRectWidth = 0;
+        int drawRectWidth = 0; // used for debugging box colliders
         int drawRectHeight = 0;
 
+        // set correct image dimensions for each enemy
         if (texture[0].contains("Grumpy_bee")) {
             imageWidth = 80;
             imageHeight = 61;
@@ -173,12 +179,15 @@ public class Viewer extends JPanel {
 
         try {
             int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
-            if (texture.length > 1) {
+
+            if (texture.length > 1) { // if image has animation
+
                 if (currentPositionInAnimation % 2 == 0) {
                     TextureToLoad = new File(texture[0]);
                 } else {
                     TextureToLoad = new File(texture[1]);
                 }
+
             } else {
                 TextureToLoad = new File(texture[0]);
             }
@@ -187,8 +196,10 @@ public class Viewer extends JPanel {
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             // TODO redraw enemy rectangles
             g.drawImage(myImage, x, y, x + imageWidth, y + imageHeight, 0, 0, imageWidth, imageHeight, null);
-            g.setColor(Color.red);
-            g.drawRect(x + drawRectX, y + drawRectY, drawRectWidth, drawRectHeight);
+
+            // debug colliders
+//            g.setColor(Color.red);
+//            g.drawRect(x + drawRectX, y + drawRectY, drawRectWidth, drawRectHeight);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -202,14 +213,17 @@ public class Viewer extends JPanel {
         try {
             Image myImage = ImageIO.read(TextureToLoad);
             g.drawImage(myImage, 0, 0, 1200, 768, 0, 0, 1200, 600, null);
-            g.setColor(Color.red);
-            g.drawRect(0, 665, 1200, 39);
+
+            // debug ground collider
+//            g.setColor(Color.red);
+//            g.drawRect(0, 665, 1200, 39);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
+    // draw game background with game over and number of points
     public void drawGameOver(Graphics g) {
         File TextureToLoad = new File("res/Full-Background_small.png");
         try {
@@ -230,6 +244,7 @@ public class Viewer extends JPanel {
         }
     }
 
+    // draw game background with game over and number of points
     public void drawWinner(Graphics g) {
         File TextureToLoad = new File("res/Full-Background_small.png");
         try {
@@ -250,14 +265,15 @@ public class Viewer extends JPanel {
         }
     }
 
+    // draw bullets
     private void drawBullet(int x, int y, int width, int height, String[] texture, Graphics g) {
         File TextureToLoad = new File(texture[0]);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
             Image myImage = ImageIO.read(TextureToLoad);
             //64 by 128
             g.drawImage(myImage, x, y, x + 35, y + 35, 0, 0, 60, 59, null);
-            g.setColor(Color.red);
-            g.drawRect(x + 5, y + 5, 25, 25);
+//            g.setColor(Color.red);
+//            g.drawRect(x + 5, y + 5, 25, 25);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -265,6 +281,7 @@ public class Viewer extends JPanel {
         }
     }
 
+    // draw lives on bottom left
     private void drawLives(int x, int y, Graphics g) {
         File TextureToLoad = new File("res/life/life_small.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
@@ -276,6 +293,7 @@ public class Viewer extends JPanel {
         }
     }
 
+    // draw boss lives on top of creen
     private void drawBossLives(int x, int y, Graphics g) {
         File TextureToLoad = new File("res/skull_ufo_boss/skull_left_small_life.png"); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
@@ -287,9 +305,11 @@ public class Viewer extends JPanel {
         }
     }
 
+    // draw power up icon on top left
     private void drawHasPowerUp(String texture, int imageIndex, Graphics g) {
         File TextureToLoad = new File(texture); //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-        // TODO add image index here set size
+
+        // set for each power up image
         int imageWidth = 0;
         int imageHeight = 0;
         int counter = 0;
@@ -298,13 +318,13 @@ public class Viewer extends JPanel {
         int strPos = 60;
 
         if (imageIndex == 0) {
-
+            // bullet image dimensions
             imageWidth = 60;
             imageHeight = 59;
             counter = gameworld.getBulletCounter();
-            x1 = 80;
+            x1 = 80; // offset on x axis to allow for strength icon to sit to left
             x2 = 110;
-            strPos = 115;
+            strPos = 115; // offset for string
 
         } else if (imageIndex == 3) {
 
@@ -318,16 +338,18 @@ public class Viewer extends JPanel {
             Image myImage = ImageIO.read(TextureToLoad);
 
             g.drawImage(myImage, x1, 20, x2, 50, 0, 0, imageWidth, imageHeight, null);
-            g.drawString("x " + counter, strPos, 48);
+            g.drawString("x " + counter, strPos, 48); // paint string with number of power up uses left
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
+    // draw power ups falling from sky
     private void drawPowerUps(int x, int y, int width, int height, String texture, int imageIndex, Graphics g) {
         File TextureToLoad = new File(texture);
-        //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+
+        // set correct width and height for each power up image
         int imageWidth = 0;
         int imageHeight = 0;
 
@@ -349,33 +371,34 @@ public class Viewer extends JPanel {
             Image myImage = ImageIO.read(TextureToLoad);
 
             g.drawImage(myImage, x, y, x + width, y + height, 0, 0, imageWidth, imageHeight, null);
-            g.setColor(Color.red);
-            g.drawRect(x + 5, y + 5, width - 10, height - 10);
+//            g.setColor(Color.red);
+//            g.drawRect(x + 5, y + 5, width - 10, height - 10);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
+    // draw player
     private void drawPlayer(int x, int y, int width, int height, String[] texture, Graphics g) {
         //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         File TextureToLoad;
         try {
             int currentPositionInAnimation = ((int) (((CurrentAnimationTime) * 6 % 100) / 10)); //slows down animation so every 10 frames we get another frame so every 100ms
-            if (currentPositionInAnimation % 2 == 0) {
+            if (currentPositionInAnimation % 2 == 0) { // alternate image to animate
                 TextureToLoad = new File(texture[0]);
             } else {
                 TextureToLoad = new File(texture[1]);
             }
             Image myImage = ImageIO.read(TextureToLoad);
             g.drawImage(myImage, x, y, x + 80, y + 67, 0, 0, 80, 67, null);
-            g.setColor(Color.red);
-            g.drawRect(
-                    (int) gameworld.getPlayer().getCollider().getX(),
-                    (int) gameworld.getPlayer().getCollider().getY(),
-                    (int) gameworld.getPlayer().getCollider().getWidth(),
-                    (int) gameworld.getPlayer().getCollider().getHeight()
-            );
+//            g.setColor(Color.red);
+//            g.drawRect(
+//                    (int) gameworld.getPlayer().getCollider().getX(),
+//                    (int) gameworld.getPlayer().getCollider().getY(),
+//                    (int) gameworld.getPlayer().getCollider().getWidth(),
+//                    (int) gameworld.getPlayer().getCollider().getHeight()
+//            );
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

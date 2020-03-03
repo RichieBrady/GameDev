@@ -1,6 +1,9 @@
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
+/* Richard Brady
+ * 16726839
+ * */
+// simple mouse controller class, used for mouse click when bullet power up collected
 public class MouseController implements MouseListener {
     private static boolean mouseClicked = false;
     private static boolean mousePressed = false;

@@ -1,6 +1,10 @@
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
+/* Richard Brady
+ * 16726839
+ * */
+// motion controller used to check mouse pointer position to change character image direction
 public class MouseMotionController  implements MouseMotionListener {
     private static boolean mouseDragged = false;
     private static boolean mouseMoved = false;

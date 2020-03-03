@@ -9,30 +9,9 @@ import util.*;
 
 import static java.lang.Math.floor;
 
-/*
- * Created by Abraham Campbell on 15/01/2020.
- *   Copyright (c) 2020  Abraham Campbell
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-   
-   (MIT LICENSE ) e.g do what you want with this :-) 
- */
+/* Richard Brady
+ * 16726839
+ * */
 public class Model {
     // TODO IMPLEMENT: set proper enemy intervals, comments
 
@@ -46,47 +25,51 @@ public class Model {
     private final Rectangle groundCollider = new Rectangle(0, 665, 1020, 39);
     private final Settings settings;
 
-    private double yVelocity = 0;
-    private double xVelocity = 0;
-    private int jump = 0;
+    private double yVelocity = 0; // increased when space pressed, decreased with gravity
+    private double xVelocity = 0; // increased with a or d and decreased over time
+    private int jump = 0; //
 
     private int enemySpeed = 1;
-    private int enemyCount = 50;
+    private int enemyCount = 50; // enemies change at enemyCount intervals
 
-    private boolean isHit = false;
-    private boolean hasPower = false;
+    private boolean isHit = false; // true if hit by enemy or fall to ground
+    private boolean hasPower = false; // true if powerUp collected
     private boolean hasBulletPower = false;
     private Vector3f bulletVector = new Vector3f(0,0,0);
-    private int bulletCounter = 5;
+    private int bulletCounter = 5; // 5 bullets for each bullet power up collected
     private boolean hasStrengthPower = false;
-    private int strengthCounter = 5;
-    private boolean left = false;
-    private boolean right = false;
+    private int strengthCounter = 5; // can attack 5 enemies when strength power up collected
+    private boolean left = false; // true when facing left
+    private boolean right = false; // true when facing right
     private boolean gameOver = false;
     private boolean winner = false;
 
-    private boolean rocketMode = false;
-    private boolean spiderMode = false;
-    private boolean ufoMode = false;
-    private boolean bossMode = false;
+    private boolean rocketMode = false; // true when rocket enemies spawn
+    private boolean spiderMode = false; // true when spider enemies spawn
+    private boolean ufoMode = false; // true when ufo enemies spawn
+    private boolean bossMode = false; // true when boss has spawned
     private boolean bossSpawned = false;
-    private int bossLives = 1;
-    private boolean bossCollided = false;
+    private int bossLives = 1; // number of lives for boss different for each difficulty level
 
-    private Timer enemySpawnTimer = new Timer();
-    private TimerTask enemySpawnTask = new EnemySpawnTask();
+    private Timer enemySpawnTimer = new Timer(); // used to spawn enemies at set intervals
+    private TimerTask enemySpawnTask = new EnemySpawnTask(); // logic for enemy spawn
 
-    private final Timer powerUpSpawnTimer = new Timer();
-    private final TimerTask powerUpSpawnTask = new PowerUpSpawnTask();
+    private final Timer powerUpSpawnTimer = new Timer(); // spawn power ups at set intervals
+    private final TimerTask powerUpSpawnTask = new PowerUpSpawnTask(); // logic for power up spawn
 
     private int Score = 0;
-    private int enemyIncrementer = 0;
+    private int enemyIncrementer = 0; // incremented when enemyCount reaches set intervals. each increment spawns different enemy
 
+    // enemy spawn logic
     class EnemySpawnTask extends TimerTask {
+        // sets ufo flight direction when spawned, index chosen at random
         int[] ufoFlyMode = {-1, 0, 1};
+
         int[] bossFlyMode = {-1, 1};
 
         public void run() {
+            // enemy type and difficulty changes when enemyCount reaches different intervals
+            // default enemies are bees, next rockets, spiders, ufos, final boss
             if (enemyCount <= 60) {
                 if ((enemyCount >= 20 && enemyCount <= 25)) {
                     enemyIncrementer = 1;
@@ -110,53 +93,65 @@ public class Model {
                 }
             }
             if (!bossMode) {
-                if (spiderMode) {
+
+                if (spiderMode) { // spiders spawn from top of screen
+
                     float x = ((float) Math.random() * 1000);
                     EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(x, 0, 0),
                             new Rectangle((int) x, 0, 50, 50)));
-                } else if (ufoMode) {
+
+                } else if (ufoMode) { // ufos spawn from the right but with random y axis direction
+
                     float y = ((float) Math.random() * 600);
                     int index = (int) (Math.random() * ((2) + 1));
                     EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1000, y, 0),
                             new Rectangle(1533, (int) y, 50, 50), ufoFlyMode[index]));
-                } else {
+
+                } else { // rockets and bees spawn from the right and move in straight line
+
                     float y = ((float) Math.random() * 600);
                     EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1000, y, 0),
                             new Rectangle(1533, (int) y, 50, 50)));
+
                 }
             }
-            if (bossSpawned) {
+            if (bossSpawned) { // boss spawns from right and moves similar to ufos.
 
                 float y = ((float) Math.random() * 600);
-                int index = (int) (Math.random() * ((1) + 1));
+                int index = (int) (Math.random() * ((1) + 1)); // random flight pattern
 
                 EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1000, y, 0),
                         new Rectangle(1000, (int) y, 50, 50), bossFlyMode[index]));
                 bossSpawned = false;
 
+                // cancel new enemy spawns
                 enemySpawnTask.cancel();
                 enemySpawnTimer.cancel();
             }
         }
     }
-
+    // power up spawn logic
     class PowerUpSpawnTask extends TimerTask {
+        // randomly selected power up images
         String[] powerTextures = {
                 "res/bullet_game_assets/bullet4.png",
                 "res/sweet_cake/sweet_cake_small.png",
                 "res/poison/poison_bottle_small.png",
                 "res/iron_fist/boxed-fist_small.png",
         };
+        // iron fist power removed when boss mode is true
         int ironIndex;
         // set random int
         public void run() {
+
             if (bossMode) {
                 ironIndex = 2;
             } else {
                 ironIndex = 3;
             }
-            float x = ((float) Math.random() * 1000);
-            int index = (int) (Math.random() * ((ironIndex) + 1));
+
+            float x = ((float) Math.random() * 1000); // spawn randomly from top of window
+            int index = (int) (Math.random() * ((ironIndex) + 1)); // random image index chosen
             PowerUpList.add(new PowerUpObject(powerTextures[index], x, index));
         }
     }
@@ -171,6 +166,7 @@ public class Model {
                 new Rectangle(300, 300, 50, 50));
     }
 
+    // reset all relevant values when game is restarted
     public void resetGameWorld() {
         Score = 0;
         enemyCount = 0;
@@ -187,7 +183,6 @@ public class Model {
         ufoMode = false;
 
         bossSpawned = false;
-        bossCollided = false;
 
         if (bossMode) {
             bossMode = false;
@@ -208,7 +203,7 @@ public class Model {
                 new Rectangle(300, 300, 50, 50));
     }
 
-
+    // initialize power up and enemy spawn timers. Called in main window
     public void initTimers() {
         enemyTextures.add(new String[]{"res/Grumpy_bee/1small.png", "res/Grumpy_bee/2small.png"});
         enemyTextures.add(new String[]{"res/rocket/left1_small.png"});
@@ -218,12 +213,13 @@ public class Model {
         enemySpawnTimer.scheduleAtFixedRate(enemySpawnTask, 100, settings.getEnemySpawnRate());
         powerUpSpawnTimer.scheduleAtFixedRate(powerUpSpawnTask, 5000, settings.getPowerUpSpawnRate());
     }
-
+    // initialize gameworld settings from settings object. different values for difficulty chosen
     public void initSettings() {
-//        settings.getNumberOfLives();
+
         for (int i = 0; i < settings.getNumberOfLives(); i++) {
             livesList.add(i);
         }
+
         enemySpeed = settings.getEnemySpeed();
         bossLives = settings.getNumberOfBossLives();
     }
@@ -237,57 +233,64 @@ public class Model {
         enemyLogic();
         // Bullets move next
         bulletLogic();
-
+        // powerup logic next
         powerUpLogic();
         // interactions between objects
         gameLogic();
     }
-    // TODO Leave bullet power up
-    private void setPowerUpEffects(PowerUpObject powerUp){
 
+    // when player collides with power up set relevant parameters for power up collected
+    private void setPowerUpEffects(PowerUpObject powerUp){
+        // iron fist power up allows player to crash into 5 enemies
         if (powerUp.getTextureLocation().contains("iron_fist")) {
-            hasPower = true;
-            hasStrengthPower = true;
-            strengthCounter = 5;
-            getPowerUpCollectedList().add(powerUp);
-        } else if (powerUp.getTextureLocation().contains("sweet")) {
-            Score += 200;
-        } else if (powerUp.getTextureLocation().contains("poison")) {
+
+            hasPower = true; // when true power up image and counter painted in left corner
+            hasStrengthPower = true; // when true allows player to crash into and destroy enemies
+            strengthCounter = 5; // when 0 power up gone
+            getPowerUpCollectedList().add(powerUp); // used in viewer to paint collected power up
+
+        } else if (powerUp.getTextureLocation().contains("sweet")) { // sweet cakes provides bonus points
+
+            Score += 300;
+
+        } else if (powerUp.getTextureLocation().contains("poison")) { // poison deducts points
+
             Score -= 500;
-        } else if (powerUp.getTextureLocation().contains("bullet")) {
+
+        } else if (powerUp.getTextureLocation().contains("bullet")) { // bullet power up allows player to shoot 5 bullets
+
             hasPower = true;
             hasBulletPower = true;
             bulletCounter = 5;
             getPowerUpCollectedList().add(powerUp);
+
         }
     }
 
+    // logic for strength power up
     private void strengthPower(GameObject temp) {
-        if (!bossMode) {
-            EnemiesList.remove(temp);
-        } else if (bossLives > 0 && !bossCollided){
-            bossLives--;
-            bossCollided = true;
-        } else if (bossLives == 0){
-            EnemiesList.clear();
-            winner = true;
-        }
+
+        EnemiesList.remove(temp);
         Score += 100;
+
         if (strengthCounter >= 1) {
+
             strengthCounter--;
+
         } else if (strengthCounter == 0){
+
             if (!hasBulletPower) {
                 getPowerUpCollectedList().clear();
                 hasPower = false;
             }
+
             hasStrengthPower = false;
         }
     }
 
     private void gameLogic() {
-        // this is a way to increment across the array list data structures
-        //see if they hit anything
-        // using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
+
+        // power up collection logic
         for (PowerUpObject powerUp : PowerUpList) {
             if (powerUp.getCollider().intersects(Player.getCollider())) {
                 setPowerUpEffects(powerUp);
@@ -295,19 +298,21 @@ public class Model {
             }
         }
 
+        // enemy interaction logic
         for (GameObject temp : EnemiesList) {
-            if (bossCollided && !temp.getCollider().intersects(Player.getCollider())) {
-                bossCollided = false;
-            }
+
             if (temp.getCollider().intersects(Player.getCollider())) {
+
                 if (hasStrengthPower) {
                     strengthPower(temp);
+
                 } else {
+                    // deduct points and life if hit by enemy
                     Score -= 250;
                     if (livesList.size() > 0) {
                         livesList.remove(0);
                     } else {
-                        gameOver = true;
+                        gameOver = true; // if no lives left gameover
                         break;
                     }
                     isHit = true;
@@ -315,20 +320,24 @@ public class Model {
                 }
             }
 
+            // bullet logic
             for (GameObject bullet : BulletList) {
                 if (bullet.getCollider().intersects(temp.getCollider())) {
+                    // destroy enemy if not boss
                     if (!bossMode) {
                         EnemiesList.remove(temp);
                         BulletList.remove(bullet);
-                    } else if (bossLives > 0) {
+
+                    } else if (bossLives > 0) { // remove boss life if hit by bullet
                         bossLives--;
                         BulletList.remove(bullet);
-                    } else if (bossLives == 0){
+
+                    } else if (bossLives == 0){ // if boss lives == 0 player wins
                         EnemiesList.clear();
                         winner = true;
                         break;
                     }
-                    Score += 200;
+                    Score += 200; // increase points for each enemy hit by bullet
                 }
             }
         }
@@ -338,7 +347,7 @@ public class Model {
         }
 
         if (isHit) {
-            getPlayer().setCentre(new Point3f(300, 300, 0));
+            getPlayer().setCentre(new Point3f(300, 300, 0)); // reset player location and remove all enemies if hit
             if (!bossMode) {
                 getEnemies().clear();
             }
@@ -350,21 +359,14 @@ public class Model {
         // smoother animation is possible if we make a target position  // done but may try to change things for students
 
         //check for movement and if you fired a bullet
-
-        if (Controller.getInstance().isKeyWPressed()) {
-
-        }
-
-        if (Controller.getInstance().isKeySPressed()) {
-            // movementLogic(checkForPlayerCollision, -distanceToTravel, false);
-        }
+        // temporary point to check for collision before players vector updated
         Point3f checkForPlayerCollision = new Point3f(Player.getCentre().getX(), Player.getCentre().getY(), 0);
 
-        xVelocity = 2;
+        xVelocity = 2; // left and right velocity
         if (Controller.getInstance().isKeyAPressed()) {
 
-            setLeft(true);
-            movementLogic(checkForPlayerCollision, (int) -xVelocity, true);
+            setLeft(true); // not sure if needed anymore, was used in early development. afraid to remove now.
+            movementLogic(checkForPlayerCollision, (int) -xVelocity, true); // call movement method
         }
 
         if (Controller.getInstance().isKeyDPressed()) {
@@ -373,15 +375,20 @@ public class Model {
             movementLogic(checkForPlayerCollision, (int) xVelocity, true);
         }
 
+        // mouse click to shoot bullets if power up is activated
         if (MouseController.isMouseClicked()) {
             if (hasBulletPower) {
                 int x = MouseController.getMouseX();
                 int y = MouseController.getMouseY();
+
                 if (bulletCounter >= 1) {
-                    bulletVector(x, y);
-                    CreateBullet();
+
+                    bulletVector(x, y); // calculate correct vector based on click location and player location
+                    CreateBullet(); // spawn bullet
                     bulletCounter--;
+
                 } else {
+
                     if (!hasStrengthPower) {
                         getPowerUpCollectedList().clear();
                         hasPower = false;
@@ -391,15 +398,16 @@ public class Model {
             }
             MouseController.setMouseClicked(false);
         }
-
+        // press space to fly
         if (Controller.getInstance().isKeySpacePressed()) {
             if (jump >= 0) {
-                yVelocity = 10;
-                jump = 8;
+                yVelocity = 10; // higher number will make the character fly higher
+                jump = 8; // jump countdown
             }
             Controller.getInstance().setKeySpacePressed(false);
         }
 
+        // change direction character image is facing based on mouse pointer location
         if (MouseMotionController.getMouseX() < getPlayer().getCentre().getX()) {
             getPlayer().setTextureLocations(new String[]{"res/green_fly/up_left_small.png", "res/green_fly/down_left_small.png"});
         } else {
@@ -407,21 +415,26 @@ public class Model {
         }
     }
 
+    // calculate bullet vector
     private void bulletVector(int mouseClickX, int mouseClickY){
         double playerX = getPlayer().getCentre().getX();
         double playerY = getPlayer().getCentre().getY();
 
+        // get difference of player location and mouse click
         double vx = (double)mouseClickX - playerX;
         double vy = (double)mouseClickY - playerY;
 
+        // normalise to get distance
         double distance = Math.sqrt(vx * vx + vy * vy);
 
+        // calculate direction
         double dirX = vx / distance;
         double dirY = vy / distance;
         dirY = dirY * -1;
         bulletVector = new Vector3f((float)dirX*3, (float)dirY*3, 0);
     }
 
+    //
     private void bulletLogic() {
         // TODO Auto-generated method stub
         // move bullets
@@ -429,9 +442,10 @@ public class Model {
         for (GameObject temp : BulletList) {
             //check to move them
             temp.getCentre().ApplyVector(bulletVector);
-            //see if they hit anything
+            //set bullet collider
             temp.setCollider(new Rectangle((int)temp.getCentre().getX() + 5, (int) temp.getCentre().getY() + 5, 25, 25));
-            //see if they get to the top of the screen ( remember 0 is the top
+
+            // remove if hit boundary
             if (temp.getCentre().getY() == 0) {
                 BulletList.remove(temp);
             } else if (floor(temp.getCentre().getY()) == 665) {
@@ -455,28 +469,38 @@ public class Model {
         int x = 0;
         int y = 0;
 
+        // if direction is on x axis set x to distanceToTravel else y is correct axis to move on
         if (isX) {
             x = distanceToTravel;
         } else {
             y = distanceToTravel;
         }
 
-        checkForPlayerCollision.ApplyVector(new Vector3f(x, y, 0));
-        detectCollision(checkForPlayerCollision);
+        checkForPlayerCollision.ApplyVector(new Vector3f(x, y, 0)); // apply vector to temp point
+        detectCollision(checkForPlayerCollision); // detect if collision on temp point
 
+        // set fields if collision has occurred
         if (getPlayer().isCollided()) {
             Score -= 250;
+
             if (livesList.size() > 0) {
                 livesList.remove(0);
+
             } else {
                 gameOver = true;
+
             }
+
             getPlayer().setCentre(new Point3f(300, 300, 0));
+
             if (!bossMode) {
                 getEnemies().clear();
             }
+
             yVelocity = 5;
-        } else {
+
+        } else { // else apply vector to player
+
             Player.getCentre().ApplyVector(new Vector3f(x, y, 0));
             Player.setCollider(
                     new Rectangle(
@@ -489,21 +513,25 @@ public class Model {
     }
 
     private void detectCollision(Point3f playerLocation) {
-        // TODO refactor to check player collider properly
+        // get x and y from temp player location
         int x = (int) playerLocation.getX();
         int y = (int) playerLocation.getY();
 
+        // new box collider for temp point
         Rectangle playerRect = new Rectangle(x + 14, y + 22, 45, 45);
 
+        // if playerRect and ground collider intersect collision = true
         getPlayer().setCollided(playerRect.intersects(groundCollider));
     }
 
+    // updates x and y velocity
     public void update() {
-        double gravity = 0.5;
+        double gravity = 0.5; // value to deduct from yVelocity on each frame i.e. rate at which player falls
         if (!getPlayer().isCollided()) {
             yVelocity -= gravity;
         }
 
+        // slows left and right movement eventually stops if player is not pressing direction keys
         if (left && xVelocity > 0) {
             xVelocity -= 0.2;
         } else if (right && xVelocity > 0) {
@@ -521,6 +549,7 @@ public class Model {
         movementLogic(checkForPlayerCollision, (int) yVelocity, false);
     }
 
+    // move enemies based on type
     private void enemyLogic() {
         // TODO Auto-generated method stub
         float boundary = 0.0f;
@@ -528,13 +557,13 @@ public class Model {
 
         for (GameObject temp : EnemiesList) {
             // Move enemies
-            if (spiderMode) {
+            if (spiderMode) { // spiders move from top to bottom
 
                 temp.getCentre().ApplyVector(new Vector3f(0, -enemySpeed, 0));
                 boundary = 665.0f;
                 axisToCheck = temp.getCentre().getY();
 
-            } else if (ufoMode) {
+            } else if (ufoMode) { // ufos move right to left and randomly on y axis. Bounce off ceiling or ground if hit
 
                 if (temp.getCentre().getY() == 0) {
 
@@ -548,13 +577,13 @@ public class Model {
                 temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, temp.getUfoModeY(), 0));
                 axisToCheck = temp.getCentre().getX();
 
-            } else if (rocketMode) {
+            } else if (rocketMode) { // rockets move fast right to left
 
                 int rocketSpeed = enemySpeed + 2;
                 temp.getCentre().ApplyVector(new Vector3f(-rocketSpeed, 0, 0));
                 axisToCheck = temp.getCentre().getX();
 
-            } else if (bossMode) {
+            } else if (bossMode) { // boss spawns from right random movement on y axis and bounces off all boundaries
 
                 if (floor(temp.getCentre().getY()) == 0) {
 
@@ -576,26 +605,27 @@ public class Model {
                 temp.getCentre().ApplyVector(new Vector3f(temp.getUfoModeX(), temp.getUfoModeY(), 0));
                 axisToCheck = temp.getCentre().getX();
 
-            } else {
+            } else { // bees move right to left and are first enemy type encountered
 
                 temp.getCentre().ApplyVector(new Vector3f(-enemySpeed, 0, 0));
                 axisToCheck = temp.getCentre().getX();
             }
 
-            setEnemyCollider(temp);
+            setEnemyCollider(temp); // set enemy collider based on type
 
-            //see if they get to the top of the screen ( remember 0 is the top
-            if (axisToCheck == boundary && !bossMode) {
+            // if spider enemy check y axis and remove if reach ground else check x axis and remove if right of screen is reached
+            if (axisToCheck == boundary && !bossMode) { // don't remove if enemy is boss
 
                 EnemiesList.remove(temp);
                 // enemies lose so score increased
                 Score += 10;
-                enemyCount++;
+                enemyCount++; // each enemy removed increases counter, used to spawn new enemies at higher values
             }
         }
     }
 
     private void setEnemyCollider(GameObject temp){
+        // each enemy is different size so different offsets for box colliders needed
         if (rocketMode) {
 
             temp.setCollider(
@@ -649,6 +679,7 @@ public class Model {
         }
     }
 
+    // power ups spawn from top and disappear when they hit the ground
     private void powerUpLogic() {
         // Move enemies
         for (GameObject temp : PowerUpList) {
@@ -663,7 +694,6 @@ public class Model {
                             temp.getHeight() -10)
             );
 
-            //see if they get to the top of the screen ( remember 0 is the top
             if (temp.getCentre().getY() == 665.0f)  // current boundary need to pass value to model
             {
                 PowerUpList.remove(temp);
@@ -671,6 +701,7 @@ public class Model {
         }
     }
 
+    // getters and setters
     public GameObject getPlayer() {
         return Player;
     }
@@ -743,6 +774,31 @@ public class Model {
         this.winner = winner;
     }
 }
+
+/*
+ * Created by Abraham Campbell on 15/01/2020.
+ *   Copyright (c) 2020  Abraham Campbell
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+   (MIT LICENSE ) e.g do what you want with this :-)
+ */
 
 /* MODEL OF your GAME world 
  * MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM

@@ -38,6 +38,9 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */
 
+/* Richard Brady
+ * 16726839
+ * */
 public class MainWindow {
     private static JFrame frame = new JFrame("Shoo Fly"); // Change to the name of your game
     private static Settings settings = new Settings();
@@ -88,6 +91,8 @@ public class MainWindow {
             }
         });
         optionsButton.setBounds(500, 798/2 + 40, 200, 40);
+        frame.add(startMenuButton);
+        frame.add(optionsButton);
         //loading background image
         File BackroundToLoad = new File("res/Full-Background_menu.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
@@ -98,8 +103,7 @@ public class MainWindow {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        frame.add(startMenuButton);
-        frame.add(optionsButton);
+
         frame.setVisible(true);
     }
 
@@ -119,10 +123,10 @@ public class MainWindow {
             if (startGame) {
                 gameloop();
             }
-
+            // show gameover screen or winner screen
             while(gameworld.isGameOver() || gameworld.isWinner()) {
                 canvas.updateview();
-                if (Controller.isKeySpacePressed()) {
+                if (Controller.isKeySpacePressed()) { // press space to restart game
                     gameworld.resetGameWorld();
                     gameworld.setGameOver(false);
                     gameworld.setWinner(false);
@@ -146,10 +150,6 @@ public class MainWindow {
         // view update
 
         canvas.updateview();
-
-//        if (!gameworld.isInitTimers()) {
-//
-//        }
 
         // Both these calls could be setup as  a thread but we want to simplify the game logic for you.
         //score update
