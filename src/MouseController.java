@@ -29,7 +29,6 @@ public class MouseController implements MouseListener {
         setMouseClicked(true);
         mouseX = e.getX();
         mouseY = e.getY();
-        System.out.println(e.getX() + " " + e.getY());
     }
 
     @Override

@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,7 +12,7 @@ import static java.lang.Math.floor;
  * 16726839
  * */
 public class Model {
-    // TODO IMPLEMENT: set proper enemy intervals, comments
+    // TODO IMPLEMENT: set proper enemy intervals, do video
 
     private GameObject Player;
     private final CopyOnWriteArrayList<GameObject> EnemiesList = new CopyOnWriteArrayList<GameObject>();
@@ -29,8 +28,8 @@ public class Model {
     private double xVelocity = 0; // increased with a or d and decreased over time
     private int jump = 0; //
 
-    private int enemySpeed = 1;
-    private int enemyCount = 50; // enemies change at enemyCount intervals
+    private int enemySpeed;
+    private int enemyCount = 0; // enemies change at enemyCount intervals
 
     private boolean isHit = false; // true if hit by enemy or fall to ground
     private boolean hasPower = false; // true if powerUp collected
@@ -70,21 +69,21 @@ public class Model {
         public void run() {
             // enemy type and difficulty changes when enemyCount reaches different intervals
             // default enemies are bees, next rockets, spiders, ufos, final boss
-            if (enemyCount <= 60) {
-                if ((enemyCount >= 20 && enemyCount <= 25)) {
+            if (!bossMode) {
+                if ((enemyCount == 45)) {
                     enemyIncrementer = 1;
                     rocketMode = true;
-                } else if ((enemyCount >= 30 && enemyCount <= 35)) {
+                } else if (enemyCount == 80 && !spiderMode) {
                     enemyIncrementer = 2;
                     rocketMode = false;
                     spiderMode = true;
                     getEnemies().clear();
-                } else if ((enemyCount >= 40 && enemyCount <= 45)) {
+                } else if (enemyCount == 115 && !ufoMode) {
                     enemyIncrementer = 3;
                     spiderMode = false;
                     ufoMode = true;
                     getEnemies().clear();
-                } else if ((enemyCount >= 50 && enemyCount <= 55)) {
+                } else if (enemyCount == 150) {
                     getEnemies().clear();
                     enemyIncrementer = 4;
                     ufoMode = false;
@@ -105,13 +104,13 @@ public class Model {
                     float y = ((float) Math.random() * 600);
                     int index = (int) (Math.random() * ((2) + 1));
                     EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1000, y, 0),
-                            new Rectangle(1533, (int) y, 50, 50), ufoFlyMode[index]));
+                            new Rectangle(1000, (int) y, 50, 50), ufoFlyMode[index]));
 
                 } else { // rockets and bees spawn from the right and move in straight line
 
                     float y = ((float) Math.random() * 600);
                     EnemiesList.add(new GameObject(enemyTextures.get(enemyIncrementer), 80, 80, new Point3f(1000, y, 0),
-                            new Rectangle(1533, (int) y, 50, 50)));
+                            new Rectangle(1000, (int) y, 50, 50)));
 
                 }
             }
@@ -303,7 +302,7 @@ public class Model {
 
             if (temp.getCollider().intersects(Player.getCollider())) {
 
-                if (hasStrengthPower) {
+                if (hasStrengthPower && !bossMode) {
                     strengthPower(temp);
 
                 } else {
@@ -554,11 +553,10 @@ public class Model {
         // TODO Auto-generated method stub
         float boundary = 0.0f;
         float axisToCheck;
-
+        int a = 0;
         for (GameObject temp : EnemiesList) {
             // Move enemies
             if (spiderMode) { // spiders move from top to bottom
-
                 temp.getCentre().ApplyVector(new Vector3f(0, -enemySpeed, 0));
                 boundary = 665.0f;
                 axisToCheck = temp.getCentre().getY();
@@ -569,7 +567,7 @@ public class Model {
 
                     temp.setUfoModeY(-enemySpeed);
 
-                } else if (floor(temp.getCentre().getY()) == 628) {
+                } else if (floor(temp.getCentre().getY()) == 665) {
 
                     temp.setUfoModeY(enemySpeed);
 

@@ -1,8 +1,6 @@
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -195,11 +193,13 @@ public class Viewer extends JPanel {
             //The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
             //remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
             // TODO redraw enemy rectangles
+            if (texture[0].contains("spider")) {
+            }
             g.drawImage(myImage, x, y, x + imageWidth, y + imageHeight, 0, 0, imageWidth, imageHeight, null);
 
             // debug colliders
-//            g.setColor(Color.red);
-//            g.drawRect(x + drawRectX, y + drawRectY, drawRectWidth, drawRectHeight);
+            //g.setColor(Color.red);
+            //g.drawRect(x + drawRectX, y + drawRectY, drawRectWidth, drawRectHeight);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -215,8 +215,8 @@ public class Viewer extends JPanel {
             g.drawImage(myImage, 0, 0, 1200, 768, 0, 0, 1200, 600, null);
 
             // debug ground collider
-//            g.setColor(Color.red);
-//            g.drawRect(0, 665, 1200, 39);
+            //g.setColor(Color.red);
+            //g.drawRect(0, 665, 1200, 39);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

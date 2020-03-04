@@ -31,8 +31,8 @@ public class GameObject {
     private Point3f centre = new Point3f(0, 0, 0); // Centre of object, using 3D as objects may be scaled
     private int width = 10;
     private int height = 10;
-    private float ufoModeY = 4; // for ufo enemy movement on Y axis
-    private float ufoModeX = -4; // for ufo enemy movement on X axis
+    private float ufoModeY = 3; // for ufo enemy movement on Y axis
+    private float ufoModeX = -3; // for ufo enemy movement on X axis
     private boolean hasTextured = false;
     private boolean collided = false;
     private String[] textureLocations;
